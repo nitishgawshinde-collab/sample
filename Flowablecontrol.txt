@@ -1,0 +1,156 @@
+docuflow-workflow/
+├── docuflow-workflow-app/          # (Unchanged)
+├── docuflow-control-app/           # <-- New Local Control Module
+│   ├── src/
+│   │   └── main/
+│   │       ├── java/
+│   │       │   └── com/ubs/efm/docuflow/control/
+│   │       │       ├── config/
+│   │       │       │   └── ControlSecurityConfiguration.java
+│   │       │       └── DocuflowControlApplication.java
+│   │       └── resources/
+│   │           └── application.properties
+│   └── pom.xml
+└── pom.xml                         # (Add module or keep separate for local)
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.ubs.efm.docuflow</groupId>
+        <artifactId>docuflow-workflow-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>docuflow-control-app</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Docuflow Control Application</name>
+    <description>Local Flowable Control application for monitoring Docuflow workflows</description>
+
+    <dependencies>
+        <!-- Flowable Control Starter (UI + REST APIs) -->
+        <dependency>
+            <groupId>com.flowable.control</groupId>
+            <artifactId>flowable-spring-boot-starter-control</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Actuator -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- H2 Database for Control's internal local metadata (Cluster/Endpoint configs) -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <!-- Optional: PostgreSQL driver if you prefer pointing Control's DB to local Postgres -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.ubs.efm.docuflow.control.DocuflowControlApplication</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+docuflow-control-app/src/main/java/com/ubs/efm/docuflow/control/DocuflowControlApplication.java
+package com.ubs.efm.docuflow.control;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DocuflowControlApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(DocuflowControlApplication.class, args);
+    }
+}
+
+docuflow-control-app/src/main/java/com/ubs/efm/docuflow/control/config/ControlSecurityConfiguration.java
+package com.ubs.efm.docuflow.control.config;
+
+import com.flowable.control.spring.security.web.ControlSecurityCustomizer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
+
+@Configuration
+public class ControlSecurityConfiguration {
+
+    @Bean
+    public ControlSecurityCustomizer controlSecurityCustomizer() {
+        return http -> http
+                .httpBasic(Customizer.withDefaults())
+                .formLogin(Customizer.withDefaults());
+    }
+}
+
+
+# ===================================================================
+# Server Configuration (Port 8085 to avoid collision with Work on 8080)
+# ===================================================================
+server.port=8085
+server.servlet.context-path=/flowable-control
+
+spring.application.name=docuflow-control-app
+
+# ===================================================================
+# Local Database for Flowable Control Metadata (H2 File-based so settings persist locally)
+# ===================================================================
+spring.datasource.url=jdbc:h2:~/.flowable/docuflow-control-db;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=-1
+spring.datasource.driver-class-name=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+
+# ===================================================================
+# Flowable License (Uses the same local license path or ~/.flowable/flowable.license)
+# ===================================================================
+# flowable.license.location=classpath:flowable.license
+
+# ===================================================================
+# Flowable Control Default Local Login Credentials
+# ===================================================================
+flowable.control.app.security.admin.user=admin
+flowable.control.app.security.admin.password=test
+
+# ===================================================================
+# Target Cluster Config -> Points to your local docuflow-workflow-app
+# ===================================================================
+flowable.control.app.cluster-configs[0].name=docuflow-local
+flowable.control.app.cluster-configs[0].description=Local Docuflow Workflow Application
+flowable.control.app.cluster-configs[0].server-configs[0].name=Local Work Engine
+flowable.control.app.cluster-configs[0].server-configs[0].description=Local Spring Boot Work Instance
+flowable.control.app.cluster-configs[0].server-configs[0].protocol=http
+flowable.control.app.cluster-configs[0].server-configs[0].host=localhost
+# Update port/context-path below if docuflow-workflow-app uses a custom port or context-path
+flowable.control.app.cluster-configs[0].server-configs[0].port=8080
+flowable.control.app.cluster-configs[0].server-configs[0].context-root=
+flowable.control.app.cluster-configs[0].server-configs[0].rest-root=
+flowable.control.app.cluster-configs[0].server-configs[0].actuator-root=actuator
+
+# Credentials used by Control to call docuflow-workflow-app REST & Actuator APIs
+# (Match these with a user from your in-memory-user-details.json)
+flowable.control.app.cluster-configs[0].server-configs[0].user-name=admin
+flowable.control.app.cluster-configs[0].server-configs[0].password=test
+
+Open http://localhost:8085/flowable-control in your browser and log in with admin / test.
