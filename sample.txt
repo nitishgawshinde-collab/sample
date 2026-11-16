@@ -1,0 +1,7 @@
+
+
+Thanks for checking. Please go ahead with the initial CX2 setup in in-memory mode without SSO while WHS onboarding is in progress.
+
+We need CX2 so we can deploy two EFM branches in parallel. We’ll use CX for the current release branch and CX2 to deploy and test changes from the develop or feature branch for the next release. This lets us test upcoming changes without disrupting work on the current release.
+
+SSO is required for CX2 to match the authentication setup in TE1 and TE2. Once WHS onboarding is complete, please switch CX2 to SSO.
