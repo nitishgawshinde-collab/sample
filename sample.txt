@@ -1,7 +1,37 @@
+Since your colleague works on a different project but supported you with **OAuth authentication and WhS (Reverse Proxy) setup**, I recommend selecting **“Other (e.g., project team)”**, as you have already done.
 
+The feedback should recognize his technical expertise, willingness to help across projects, and knowledge of internal company standards and processes.
 
-Thanks for checking. Please go ahead with the initial CX2 setup in in-memory mode without SSO while WHS onboarding is in progress.
+Here is a professional, positive, and natural-sounding feedback draft for all three sections.
 
-We need CX2 so we can deploy two EFM branches in parallel. We’ll use CX for the current release branch and CX2 to deploy and test changes from the develop or feature branch for the next release. This lets us test upcoming changes without disrupting work on the current release.
+### **1. What should they continue doing?**
 
-SSO is required for CX2 to match the authentication setup in TE1 and TE2. Once WHS onboarding is complete, please switch CX2 to SSO.
+He has been very supportive and approachable whenever I needed guidance on technical configurations and internal processes. Although we work on different projects, he took the time to help me understand the OAuth authentication setup and WhS (Reverse Proxy) configuration in line with our organization's standards.
+
+His knowledge of internal processes, required approvals, and configuration steps helped me navigate these areas more effectively and move forward with my project.
+
+He should continue sharing his technical expertise, supporting colleagues across teams, and maintaining his collaborative and helpful approach.
+
+### **2. What could they do to have more impact?**
+
+Since your experience with him has been positive, I suggest keeping this section constructive without introducing unnecessary criticism.
+
+He could further increase his impact by sharing his knowledge and experience with a wider audience, particularly around common technical setups such as OAuth authentication, reverse proxy configurations, and internal onboarding processes.
+
+Creating reusable documentation or sharing best practices would help other project teams navigate similar requirements more efficiently and reduce dependency on individual guidance.
+
+His experience and understanding of internal standards could be valuable to multiple teams across the organization.
+
+### **3. How have they demonstrated the UBS Behaviors? (Accountability with Integrity, Collaboration and Innovation)**
+
+He demonstrated strong collaboration by willingly supporting me despite working on a different project. He was approachable, responsive, and generous in sharing his knowledge and experience.
+
+He demonstrated accountability and integrity by guiding me through the appropriate internal processes and ensuring that the OAuth and WhS configurations aligned with our organization's standards.
+
+His practical guidance and problem-solving approach helped simplify complex technical and procedural requirements, enabling me to move forward more efficiently.
+
+Overall, his willingness to support colleagues beyond his immediate team reflects a strong collaborative mindset and a positive contribution to the organization.
+
+**My recommendation:** These three responses are suitable for a UBS feedback submission. They are appreciative without being exaggerated, recognize his contribution across projects, and avoid implying that you worked together directly on the same team.
+
+They also highlight something particularly valuable: **he helped you not only with technical implementation but also with understanding company-specific processes and requirements.**
