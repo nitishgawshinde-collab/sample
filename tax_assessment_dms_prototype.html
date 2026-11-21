@@ -1,0 +1,2804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LuxBank DocuFlow — In-House Tax Assessment DMS & Workflow Prototype</title>
+  <style>
+    :root {
+      --bg-app: #f4f6f9;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f8fafc;
+      --bg-dark: #0f172a;
+      --bg-header: #1e293b;
+      --primary: #1d4ed8;
+      --primary-hover: #1e40af;
+      --primary-light: #dbeafe;
+      --accent-lux: #0369a1;
+      --accent-pl: #b45309;
+      --accent-qc: #6d28d9;
+      --accent-tax: #047857;
+      --accent-fo: #be185d;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-light: #64748b;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --warning: #d97706;
+      --warning-bg: #fffbeb;
+      --success: #059669;
+      --success-bg: #ecfdf5;
+      --info: #2563eb;
+      --info-bg: #eff6ff;
+      --radius: 8px;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      font-size: 13.5px;
+      line-height: 1.45;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Top System Bar */
+    .top-bar {
+      background: var(--bg-dark);
+      color: #f8fafc;
+      padding: 8px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #334155;
+      flex-shrink: 0;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 15px;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stack-pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .stack-pill {
+      font-size: 11px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      font-weight: 500;
+    }
+
+    .stack-pill.gold {
+      background: rgba(245, 158, 11, 0.18);
+      color: #fcd34d;
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    /* Persona Switcher Bar */
+    .persona-bar {
+      background: var(--bg-header);
+      padding: 8px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid #334155;
+      flex-shrink: 0;
+    }
+
+    .persona-label {
+      color: #94a3b8;
+      font-size: 11.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .persona-tabs {
+      display: flex;
+      gap: 6px;
+      flex: 1;
+      overflow-x: auto;
+    }
+
+    .persona-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #e2e8f0;
+      padding: 6px 11px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+      text-align: left;
+      min-width: 170px;
+    }
+
+    .persona-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .persona-btn.active {
+      background: #ffffff;
+      color: var(--bg-dark);
+      border-color: #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .persona-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .persona-info {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .persona-role {
+      font-weight: 700;
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .persona-user {
+      font-size: 10.5px;
+      opacity: 0.78;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .persona-badge {
+      background: rgba(15, 23, 42, 0.25);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
+
+    .persona-btn.active .persona-badge {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* Navigation Tabs */
+    .main-nav {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+    }
+
+    .nav-tab {
+      background: transparent;
+      border: none;
+      border-bottom: 2.5px solid transparent;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .nav-tab:hover {
+      color: var(--primary);
+      background: var(--bg-subtle);
+    }
+
+    .nav-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      border: 1px solid var(--border-strong);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .btn:hover {
+      background: var(--bg-subtle);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #ffffff;
+      border-color: var(--success);
+    }
+
+    .btn-success:hover {
+      background: #047857;
+    }
+
+    .btn-warning {
+      background: var(--warning);
+      color: #ffffff;
+      border-color: var(--warning);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #ffffff;
+      border-color: var(--danger);
+    }
+
+    /* Main Workspace Layout */
+    .workspace {
+      flex: 1;
+      display: none;
+      overflow: hidden;
+    }
+
+    .workspace.active {
+      display: flex;
+    }
+
+    /* 3-Column Split for Workbench */
+    .col-queue {
+      width: 310px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .col-center {
+      flex: 1.15;
+      background: var(--bg-app);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 14px;
+      gap: 14px;
+    }
+
+    .col-viewer {
+      flex: 1;
+      background: var(--bg-surface);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-subtle);
+      flex-shrink: 0;
+    }
+
+    .panel-title {
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .filter-bar {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 6px;
+      background: #fff;
+    }
+
+    .filter-chip {
+      flex: 1;
+      text-align: center;
+      padding: 4px 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .filter-chip.active {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-color: #93c5fd;
+    }
+
+    .case-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .case-card {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 10px 11px;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.14s;
+      position: relative;
+    }
+
+    .case-card:hover {
+      border-color: #93c5fd;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .case-card.selected {
+      border-color: var(--primary);
+      background: #f8fbff;
+      box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.14);
+    }
+
+    .case-card.rework-flag {
+      border-left: 3.5px solid var(--danger);
+    }
+
+    .case-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .case-id {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .badge-rework {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid #fecaca;
+    }
+
+    .badge-normal {
+      background: var(--info-bg);
+      color: var(--info);
+      border: 1px solid #bfdbfe;
+    }
+
+    .badge-approved {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid #a7f3d0;
+    }
+
+    .badge-hive {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    .case-client {
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text-main);
+      margin-bottom: 2px;
+    }
+
+    .case-meta {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 5px;
+    }
+
+    /* Cards in Center Column */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .card-body {
+      padding: 14px;
+    }
+
+    /* Persona Banner */
+    .persona-banner {
+      padding: 11px 14px;
+      border-radius: var(--radius);
+      background: linear-gradient(90deg, #eff6ff 0%, #f8fafc 100%);
+      border: 1px solid #bfdbfe;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    /* Storage & Lineage Bar */
+    .lineage-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .lineage-box {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+
+    .lineage-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-light);
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .lineage-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      color: var(--text-main);
+      word-break: break-all;
+      font-weight: 600;
+    }
+
+    /* Form Grid */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-group.full {
+      grid-column: span 2;
+    }
+
+    .form-label {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .form-control {
+      padding: 7px 9px;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      font-size: 12.5px;
+      color: var(--text-main);
+      background: #fff;
+      font-family: inherit;
+    }
+
+    .form-control:disabled, .form-control[readonly] {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .form-control.ocr-highlight {
+      border-color: #60a5fa;
+      background: #f0f9ff;
+    }
+
+    /* Alert Banner for Rework */
+    .rework-alert {
+      background: var(--danger-bg);
+      border: 1px solid #fca5a5;
+      color: #991b1b;
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      margin-bottom: 12px;
+    }
+
+    /* Decision Box */
+    .decision-box {
+      background: #f8fafc;
+      border: 1.5px solid #93c5fd;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    /* Simulated Document Viewer */
+    .doc-canvas-wrap {
+      flex: 1;
+      background: #334155;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .doc-sheet {
+      width: 100%;
+      max-width: 500px;
+      background: #ffffff;
+      border-radius: 4px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      padding: 22px 24px;
+      position: relative;
+      transition: transform 0.2s ease, filter 0.2s ease;
+      font-family: "Georgia", serif;
+      color: #1e293b;
+    }
+
+    .doc-sheet.skewed {
+      transform: rotate(-2.2deg);
+      filter: blur(0.6px) contrast(0.88);
+    }
+
+    .doc-stamp {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      border: 2.5px solid #0369a1;
+      color: #0369a1;
+      padding: 4px 9px;
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      transform: rotate(6deg);
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.9);
+      pointer-events: none;
+    }
+
+    .doc-stamp.approved {
+      border-color: #047857;
+      color: #047857;
+    }
+
+    .doc-stamp.rejected {
+      border-color: #dc2626;
+      color: #dc2626;
+    }
+
+    .ocr-box {
+      border: 1.5px dashed transparent;
+      padding: 2px 4px;
+      border-radius: 3px;
+      transition: all 0.15s;
+    }
+
+    .show-ocr .ocr-box {
+      border-color: #2563eb;
+      background: rgba(37, 99, 235, 0.08);
+    }
+
+    /* Audit Trail Timeline */
+    .audit-list {
+      max-height: 195px;
+      overflow-y: auto;
+      padding: 10px 14px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .audit-item {
+      font-size: 11.5px;
+      border-left: 2.5px solid var(--primary);
+      padding-left: 9px;
+      position: relative;
+    }
+
+    .audit-item.kafka {
+      border-left-color: #d97706;
+    }
+
+    .audit-item.rework {
+      border-left-color: var(--danger);
+    }
+
+    /* Full-width Tab Views (BPMN, Hive/Kafka, Code) */
+    .full-tab-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Data Table */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .data-table th {
+      background: #f1f5f9;
+      color: var(--text-muted);
+      text-align: left;
+      padding: 9px 11px;
+      font-weight: 700;
+      border-bottom: 1px solid var(--border-strong);
+    }
+
+    .data-table td {
+      padding: 9px 11px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .data-table tr:hover td {
+      background: #f8fafc;
+    }
+
+    /* Code Viewer */
+    .code-tabs {
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    .code-pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      overflow-x: auto;
+      max-height: 540px;
+      white-space: pre;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      font-size: 12.5px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      z-index: 9999;
+      border-left: 4px solid #38bdf8;
+      max-width: 430px;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-card {
+      background: #fff;
+      width: 520px;
+      max-width: 94vw;
+      border-radius: 10px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    /* BPMN Node Styling */
+    .bpmn-node {
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+    .bpmn-node.active-step rect, .bpmn-node.active-step polygon {
+      stroke: #2563eb !important;
+      stroke-width: 3.5px !important;
+      filter: drop-shadow(0 0 8px rgba(37, 99, 235, 0.45));
+    }
+    .bpmn-node.completed-step rect {
+      stroke: #059669 !important;
+      stroke-width: 2.5px !important;
+      fill: #ecfdf5 !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top System Bar -->
+  <header class="top-bar">
+    <div class="brand-group">
+      <div class="brand-logo">DF</div>
+      <div>
+        <div class="brand-title">
+          LuxBank DocuFlow DMS
+          <span style="font-size:11px;font-weight:600;background:#1d4ed8;padding:2px 7px;border-radius:4px;">Tax Assessment Workflow</span>
+        </div>
+        <div style="font-size:11px;color:#94a3b8;">In-House Financial Document Management &bull; Deployed in Luxembourg (Single-Region)</div>
+      </div>
+    </div>
+    <div class="stack-pills">
+      <span class="stack-pill">JDK 17</span>
+      <span class="stack-pill">Spring Boot 3.5</span>
+      <span class="stack-pill">Flowable Enterprise 3.17.*</span>
+      <span class="stack-pill">PostgreSQL (OLTP + Runtime)</span>
+      <span class="stack-pill">Azure Blob Storage (Content Engine)</span>
+      <span class="stack-pill">Apache Kafka (Event Registry)</span>
+      <span class="stack-pill gold">Apache Hive (Golden Source Catalog)</span>
+    </div>
+  </header>
+
+  <!-- 5-Persona Switcher Bar -->
+  <section class="persona-bar">
+    <span class="persona-label">Switch Active Persona (5 Flowable Groups):</span>
+    <div class="persona-tabs" id="personaTabs"></div>
+  </section>
+
+  <!-- Sub-Navigation Bar -->
+  <nav class="main-nav">
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchMainTab('workbench', this)">
+        1. Persona Workbench &amp; Document Tray
+      </button>
+      <button class="nav-tab" onclick="switchMainTab('bpmn', this)">
+        2. Live BPMN 2.0 Process &amp; Rework Loops
+      </button>
+      <button class="nav-tab" onclick="switchMainTab('hive', this)">
+        3. Apache Hive Golden Source &amp; Kafka Bus
+      </button>
+      <button class="nav-tab" onclick="switchMainTab('code', this)">
+        4. Spring Boot 3.5 + Flowable 3.17 Code &amp; DDL
+      </button>
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-primary" onclick="openNewDossierModal()">+ New Tax Dossier (Front Office)</button>
+      <button class="btn" onclick="resetDemoData()">Reset Demo Data</button>
+    </div>
+  </nav>
+
+  <!-- TAB 1: WORKBENCH -->
+  <main class="workspace active" id="tab-workbench">
+    <!-- Left Column: Task Queue -->
+    <aside class="col-queue">
+      <div class="panel-header">
+        <div class="panel-title" id="queueTitle">Team Queue</div>
+        <span class="badge badge-normal" id="queueCountBadge">0 Tasks</span>
+      </div>
+      <div class="filter-bar">
+        <button class="filter-chip active" id="filterAssigned" onclick="setQueueFilter('assigned')">My Group Queue</button>
+        <button class="filter-chip" id="filterAll" onclick="setQueueFilter('all')">All Bank Dossiers (8)</button>
+      </div>
+      <div class="case-list" id="caseList"></div>
+    </aside>
+
+    <!-- Center Column: Active Task & Indexing / Decision Controls -->
+    <section class="col-center" id="centerColumn"></section>
+
+    <!-- Right Column: Document Viewer & Audit Log -->
+    <aside class="col-viewer">
+      <div class="panel-header">
+        <div class="panel-title">
+          Azure Blob Document Viewer
+          <span class="badge badge-normal" id="viewerMimeBadge">PDF Rendition</span>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn" style="padding:3px 8px;font-size:11px;" onclick="toggleOcrBoxes()">Toggle OCR Zones</button>
+          <button class="btn" style="padding:3px 8px;font-size:11px;" onclick="toggleSimulateSkew()">Simulate Bad Scan</button>
+        </div>
+      </div>
+      <div class="doc-canvas-wrap" id="docCanvasWrap"></div>
+      <div class="panel-header" style="border-top:1px solid var(--border);">
+        <div class="panel-title">Flowable History &amp; Kafka/Hive Audit Log</div>
+        <span style="font-size:11px;color:var(--text-light);">ACT_HI_TASKINST + Kafka</span>
+      </div>
+      <div class="audit-list" id="auditList"></div>
+    </aside>
+  </main>
+
+  <!-- TAB 2: LIVE BPMN 2.0 DIAGRAM -->
+  <main class="workspace" id="tab-bpmn">
+    <div class="full-tab-container">
+      <div class="card">
+        <div class="panel-header">
+          <div class="panel-title">Interactive BPMN 2.0 Workflow Model — Tax Assessment (`taxAssessmentProcess_v3_17`)</div>
+          <div style="font-size:12px;color:var(--text-muted);">
+            Selected Dossier: <strong id="bpmnSelectedCaseLabel" style="color:var(--primary);"></strong>
+            &bull; Active Candidate Group: <strong id="bpmnActiveGroupLabel"></strong>
+          </div>
+        </div>
+        <div class="card-body" style="overflow-x:auto;">
+          <svg id="bpmnSvg" viewBox="0 0 1160 560" style="width:100%;min-width:980px;height:auto;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#475569" />
+              </marker>
+              <marker id="arrow-rework" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#dc2626" />
+              </marker>
+              <marker id="arrow-kafka" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#d97706" />
+              </marker>
+            </defs>
+
+            <!-- Swimlanes -->
+            <g stroke="#cbd5e1" stroke-width="1">
+              <rect x="20" y="20" width="1120" height="95" fill="#fdf2f8" fill-opacity="0.45" />
+              <rect x="20" y="115" width="1120" height="95" fill="#f0f9ff" fill-opacity="0.5" />
+              <rect x="20" y="210" width="1120" height="95" fill="#fffbeb" fill-opacity="0.5" />
+              <rect x="20" y="305" width="1120" height="110" fill="#f5f3ff" fill-opacity="0.5" />
+              <rect x="20" y="415" width="1120" height="125" fill="#ecfdf5" fill-opacity="0.5" />
+            </g>
+
+            <!-- Swimlane Labels -->
+            <g font-family="sans-serif" font-size="11" font-weight="700" fill="#334155">
+              <text x="32" y="55">1. FRONT OFFICE</text>
+              <text x="32" y="72" font-size="9.5" fill="#64748b">group_front_office (Lux)</text>
+
+              <text x="32" y="152">2. SCAN TEAM LUX</text>
+              <text x="32" y="169" font-size="9.5" fill="#64748b">group_scan_lux</text>
+
+              <text x="32" y="247">3. SCAN TEAM POLAND</text>
+              <text x="32" y="264" font-size="9.5" fill="#64748b">group_scan_poland</text>
+
+              <text x="32" y="348">4. DATA CHECK POLAND</text>
+              <text x="32" y="365" font-size="9.5" fill="#64748b">group_data_check_poland</text>
+
+              <text x="32" y="465">5. TAX TEAM LUX</text>
+              <text x="32" y="482" font-size="9.5" fill="#64748b">group_tax_lux + Hive Sync</text>
+            </g>
+
+            <!-- Start Event -->
+            <circle cx="195" cy="67" r="16" fill="#ecfdf5" stroke="#059669" stroke-width="2.5" />
+            <text x="195" y="98" text-anchor="middle" font-size="10" fill="#334155" font-weight="600">Case Created</text>
+
+            <!-- Node: Front Office Task -->
+            <g class="bpmn-node" id="bpmn-STAGE_FRONT_OFFICE" onclick="alert('BPMN UserTask: frontOfficeIntakeTask (Candidate Group: group_front_office)')">
+              <rect x="245" y="38" width="165" height="58" rx="8" fill="#ffffff" stroke="#be185d" stroke-width="2" />
+              <text x="327" y="62" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0f172a">Front Office Intake</text>
+              <text x="327" y="79" text-anchor="middle" font-size="10" fill="#64748b">&amp; Missing Page Follow-Up</text>
+            </g>
+
+            <!-- Gateway: Scan Hub Router -->
+            <g class="bpmn-node" id="bpmn-GW_SCAN_ROUTER">
+              <polygon points="465,45 487,67 465,89 443,67" fill="#ffffff" stroke="#475569" stroke-width="2" />
+              <text x="465" y="71" text-anchor="middle" font-size="12" font-weight="700" fill="#334155">X</text>
+              <text x="465" y="36" text-anchor="middle" font-size="9.5" fill="#475569" font-weight="600">Scan Hub Route</text>
+            </g>
+
+            <!-- Node: Scan Team Lux -->
+            <g class="bpmn-node" id="bpmn-STAGE_SCAN_LUX">
+              <rect x="520" y="133" width="170" height="58" rx="8" fill="#ffffff" stroke="#0369a1" stroke-width="2" />
+              <text x="605" y="157" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0f172a">Scan &amp; Upload (Lux)</text>
+              <text x="605" y="174" text-anchor="middle" font-size="10" fill="#0369a1">AzureBlobStorageContent</text>
+            </g>
+
+            <!-- Node: Scan Team Poland -->
+            <g class="bpmn-node" id="bpmn-STAGE_SCAN_POLAND">
+              <rect x="520" y="228" width="170" height="58" rx="8" fill="#ffffff" stroke="#b45309" stroke-width="2" />
+              <text x="605" y="252" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0f172a">Scan &amp; Upload (Poland)</text>
+              <text x="605" y="269" text-anchor="middle" font-size="10" fill="#b45309">AzureBlobStorageContent</text>
+            </g>
+
+            <!-- Node: Data Check Poland -->
+            <g class="bpmn-node" id="bpmn-STAGE_DATA_CHECK_POLAND">
+              <rect x="520" y="330" width="175" height="60" rx="8" fill="#ffffff" stroke="#6d28d9" stroke-width="2" />
+              <text x="607" y="355" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0f172a">Data Check &amp; OCR QC</text>
+              <text x="607" y="372" text-anchor="middle" font-size="10" fill="#6d28d9">Poland Indexing Team</text>
+            </g>
+
+            <!-- Gateway: QC Decision Dropdown -->
+            <g class="bpmn-node" id="bpmn-GW_QC_DECISION">
+              <polygon points="755,338 777,360 755,382 733,360" fill="#ffffff" stroke="#6d28d9" stroke-width="2" />
+              <text x="755" y="364" text-anchor="middle" font-size="12" font-weight="700" fill="#6d28d9">X</text>
+              <text x="755" y="398" text-anchor="middle" font-size="9.5" fill="#475569" font-weight="600">QC Decision Dropdown</text>
+            </g>
+
+            <!-- Node: Tax Team Lux -->
+            <g class="bpmn-node" id="bpmn-STAGE_TAX_LUX">
+              <rect x="520" y="445" width="175" height="62" rx="8" fill="#ffffff" stroke="#047857" stroke-width="2" />
+              <text x="607" y="471" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0f172a">Tax Assessment Review</text>
+              <text x="607" y="488" text-anchor="middle" font-size="10" fill="#047857">Tax Team from Lux</text>
+            </g>
+
+            <!-- Gateway: Tax Decision Dropdown -->
+            <g class="bpmn-node" id="bpmn-GW_TAX_DECISION">
+              <polygon points="755,454 777,476 755,498 733,476" fill="#ffffff" stroke="#047857" stroke-width="2" />
+              <text x="755" y="480" text-anchor="middle" font-size="12" font-weight="700" fill="#047857">X</text>
+              <text x="755" y="514" text-anchor="middle" font-size="9.5" fill="#475569" font-weight="600">Tax Decision Dropdown</text>
+            </g>
+
+            <!-- Node: Flowable Event Registry (Kafka -> Hive Golden Source) -->
+            <g class="bpmn-node" id="bpmn-STAGE_COMPLETED">
+              <rect x="855" y="445" width="185" height="62" rx="8" fill="#fffbeb" stroke="#d97706" stroke-width="2" />
+              <text x="947" y="468" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">Flowable Event Registry</text>
+              <text x="947" y="483" text-anchor="middle" font-size="9.5" fill="#b45309">Kafka Outbound &rarr; Apache Hive</text>
+              <text x="947" y="497" text-anchor="middle" font-size="9" fill="#78350f">Golden Source Committed</text>
+            </g>
+
+            <!-- End Event -->
+            <circle cx="1090" cy="476" r="16" fill="#ecfdf5" stroke="#047857" stroke-width="3.5" />
+            <text x="1090" y="507" text-anchor="middle" font-size="10" fill="#047857" font-weight="700">Archived</text>
+
+            <!-- Normal Forward Sequence Flows -->
+            <g stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+              <path d="M 211 67 L 245 67" />
+              <path d="M 410 67 L 443 67" />
+              <!-- Router to Scan Lux & Scan Poland -->
+              <path d="M 465 89 L 465 162 L 520 162" />
+              <path d="M 465 89 L 465 257 L 520 257" />
+              <!-- Scan Lux & Poland to Data Check -->
+              <path d="M 690 162 L 710 162 L 710 315 L 607 315 L 607 330" />
+              <path d="M 690 257 L 607 257 L 607 330" />
+              <!-- Data Check to QC Gateway -->
+              <path d="M 695 360 L 733 360" />
+              <!-- QC Gateway Approve to Tax Lux -->
+              <path d="M 755 382 L 755 425 L 607 425 L 607 445" />
+              <!-- Tax Lux to Tax Gateway -->
+              <path d="M 695 476 L 733 476" />
+              <!-- Tax Gateway Approve to Event Registry -->
+              <path d="M 777 476 L 855 476" />
+              <path d="M 1040 476 L 1074 476" />
+            </g>
+
+            <!-- Rework Loops (Dashed Red) -->
+            <g stroke="#dc2626" stroke-width="1.6" stroke-dasharray="5,4" fill="none" marker-end="url(#arrow-rework)">
+              <!-- QC or Tax Return to Originating Scan Team -->
+              <path d="M 777 360 L 820 360 L 820 162 L 690 162" />
+              <path d="M 820 257 L 690 257" />
+              <!-- QC or Tax Return to Front Office (Missing Pages) -->
+              <path d="M 755 338 L 755 52 L 410 52" />
+              <!-- Tax Return to Data Check / Scan / Front Office -->
+              <path d="M 755 454 L 820 454 L 820 360" />
+            </g>
+
+            <!-- Labels on Rework Loops -->
+            <text x="826" y="212" font-size="9.5" fill="#dc2626" font-weight="700">Re-Scan Loop (to Lux or PL)</text>
+            <text x="615" y="46" font-size="9.5" fill="#dc2626" font-weight="700">Missing Client Pages Loop &rarr; Front Office</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Routing & Rework Rules Summary Table -->
+      <div class="card">
+        <div class="panel-header">
+          <div class="panel-title">Decision Dropdown Routing Matrix (Implemented in Flowable BPMN &amp; Prototype)</div>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Originating Stage / Persona</th>
+                <th>Decision Dropdown Option</th>
+                <th>BPMN Flow Condition</th>
+                <th>Target Queue</th>
+                <th>PostgreSQL / Kafka / Hive Side Effect</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1. Front Office (Lux)</strong></td>
+                <td>Submit to Lux Scan OR Poland Scan</td>
+                <td><code>${scanHub == 'LUX' | 'POLAND'}</code></td>
+                <td><code>group_scan_lux</code> or <code>group_scan_poland</code></td>
+                <td>Creates operational row in PostgreSQL <code>flw_tax_dossier</code></td>
+              </tr>
+              <tr>
+                <td><strong>2 &amp; 3. Scan Teams (Lux / PL)</strong></td>
+                <td>Upload Scanned PDF &amp; Complete Scan</td>
+                <td>Standard Outbound Sequence</td>
+                <td><code>group_data_check_poland</code></td>
+                <td>Streams binary via <code>AzureBlobStorageContentStorage</code>; generates PDF rendition</td>
+              </tr>
+              <tr>
+                <td><strong>4. Data Check Team (Poland)</strong></td>
+                <td><strong>Approve Index &amp; Route to Tax Lux</strong></td>
+                <td><code>${qcDecision == 'APPROVE'}</code></td>
+                <td><code>group_tax_lux</code></td>
+                <td>Emits Kafka event <code>INDEX_VERIFIED</code> to stage metadata in Apache Hive</td>
+              </tr>
+              <tr>
+                <td><strong>4. Data Check Team (Poland)</strong></td>
+                <td><strong>Return to Scan Team (Re-Scan)</strong></td>
+                <td><code>${qcDecision == 'RESCAN'}</code></td>
+                <td>Dynamically routes back to <code>${scanHub}</code> (Lux or PL)</td>
+                <td>Flags blob rendition as <code>RESCAN_REQUIRED</code>; logs rework reason</td>
+              </tr>
+              <tr>
+                <td><strong>4. Data Check Team (Poland)</strong></td>
+                <td><strong>Return to Front Office (Missing Pages)</strong></td>
+                <td><code>${qcDecision == 'MISSING_PAGES'}</code></td>
+                <td><code>group_front_office</code></td>
+                <td>Pauses QC; notifies Relationship Manager to contact client</td>
+              </tr>
+              <tr>
+                <td><strong>5. Tax Team (Lux)</strong></td>
+                <td><strong>Approve Final Tax Assessment</strong></td>
+                <td><code>${taxDecision == 'APPROVE'}</code></td>
+                <td><code>COMPLETED</code> (Golden Archive)</td>
+                <td>Flowable Event Registry publishes <code>GOLDEN_FINALIZED</code> to Kafka &rarr; Apache Hive</td>
+              </tr>
+              <tr>
+                <td><strong>5. Tax Team (Lux)</strong></td>
+                <td><strong>Return to Data Check / Scan / Front Office</strong></td>
+                <td><code>${taxDecision == 'REWORK_QC' | 'RESCAN' | 'MISSING_PAGES'}</code></td>
+                <td>Selected target team queue</td>
+                <td>Appends immutable audit entry and re-opens target team task</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- TAB 3: APACHE HIVE GOLDEN SOURCE & KAFKA ARCHITECTURE -->
+  <main class="workspace" id="tab-hive">
+    <div class="full-tab-container">
+      <div class="card">
+        <div class="panel-header">
+          <div class="panel-title">Hybrid Data &amp; Event Architecture: Solving Apache Hive Latency with Flowable 3.17 + PostgreSQL + Kafka + Azure Blob</div>
+          <button class="btn btn-primary" onclick="flushKafkaToHive()">Simulate Kafka Consumer Batch Commit to Hive</button>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+            <div class="lineage-box" style="border-left:3.5px solid #2563eb;">
+              <div class="lineage-label">1. Azure Blob Storage (Native)</div>
+              <div style="font-size:12px;font-weight:700;margin-bottom:4px;">Flowable Content Engine</div>
+              <div style="font-size:11.5px;color:var(--text-muted);">
+                Uses out-of-the-box <code>AzureBlobStorageContentStorage</code> (<code>flowable.content.storage.type=azure-blob</code>). Binary scans stream straight to Azure container <code>tax-dms-lux</code> without bloating PostgreSQL.
+              </div>
+            </div>
+            <div class="lineage-box" style="border-left:3.5px solid #059669;">
+              <div class="lineage-label">2. PostgreSQL (Hot OLTP Store)</div>
+              <div style="font-size:12px;font-weight:700;margin-bottom:4px;">Sub-20ms UI &amp; Task Queries</div>
+              <div style="font-size:11.5px;color:var(--text-muted);">
+                Holds Flowable runtime tables (<code>ACT_RU_*</code>), content pointers (<code>FLW_CO_CONTENT_OBJECT</code>), and the <code>flw_tax_dossier</code> CQRS read/write projection so users never wait on Hive MapReduce/Tez queries.
+              </div>
+            </div>
+            <div class="lineage-box" style="border-left:3.5px solid #d97706;">
+              <div class="lineage-label">3. Flowable Event Registry + Kafka</div>
+              <div style="font-size:12px;font-weight:700;margin-bottom:4px;">Zero-Code Event Outbox</div>
+              <div style="font-size:11.5px;color:var(--text-muted);">
+                Flowable Enterprise 3.17 natively includes the <strong>Event Registry Engine</strong> with Kafka Inbound/Outbound channels. BPMN <code>Send Event Tasks</code> emit <code>tax.golden.sync</code> messages on state transitions.
+              </div>
+            </div>
+            <div class="lineage-box" style="border-left:3.5px solid #7c3aed;">
+              <div class="lineage-label">4. Apache Hive (Golden Source)</div>
+              <div style="font-size:12px;font-weight:700;margin-bottom:4px;">Enterprise Master Catalog</div>
+              <div style="font-size:11.5px;color:var(--text-muted);">
+                Kafka Connect / Spark Streaming writes micro-batches into partitioned Hive table <code>bank_golden_dms.tax_documents</code> over ADLS Gen2 / Azure Blob and sends an ack event back to Flowable.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Apache Hive Table -->
+      <div class="card">
+        <div class="panel-header">
+          <div class="panel-title">Apache Hive Golden Source Table: <code>bank_golden_dms.tax_documents</code> (External Table over Azure Blob)</div>
+          <span class="badge badge-hive" id="hiveSyncCounterBadge">Synced Records</span>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Golden Doc ID</th>
+                <th>Client / Account</th>
+                <th>TIN &amp; Form</th>
+                <th>Tax Year</th>
+                <th>Scan Hub</th>
+                <th>Azure Blob URI (<code>abfss://</code>)</th>
+                <th>Hive Sync Status</th>
+                <th>Tax Assessment Status</th>
+              </tr>
+            </thead>
+            <tbody id="hiveTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Live Kafka Event Stream -->
+      <div class="card">
+        <div class="panel-header">
+          <div class="panel-title">Flowable Event Registry &harr; Apache Kafka Topic Stream (<code>flw.tax.golden.sync.outbound</code>)</div>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Timestamp (CET)</th>
+                <th>Kafka Topic / Channel</th>
+                <th>Key (Dossier ID)</th>
+                <th>Event Type</th>
+                <th>Triggered By Persona</th>
+                <th>Payload Summary</th>
+              </tr>
+            </thead>
+            <tbody id="kafkaTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- TAB 4: CODE & ARCHITECTURE BLUEPRINT -->
+  <main class="workspace" id="tab-code">
+    <div class="full-tab-container">
+      <div class="card">
+        <div class="panel-header">
+          <div class="panel-title">Production Reference Code — JDK 17 + Spring Boot 3.5 + Flowable Enterprise 3.17.*</div>
+          <div class="code-tabs">
+            <button class="btn active" onclick="showCodeSnippet('bpmnXml', this)">1. tax-assessment.bpmn20.xml</button>
+            <button class="btn" onclick="showCodeSnippet('appYml', this)">2. application-lux.yml (Azure Blob + Kafka)</button>
+            <button class="btn" onclick="showCodeSnippet('javaService', this)">3. TaxWorkflowService.java (JDK 17)</button>
+            <button class="btn" onclick="showCodeSnippet('sqlDdl', this)">4. PostgreSQL + Apache Hive DDL</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <pre class="code-pre" id="codePreDisplay"></pre>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal: Create New Tax Dossier (Front Office) -->
+  <div class="modal-backdrop" id="newDossierModal">
+    <div class="modal-card">
+      <div class="panel-header">
+        <div class="panel-title">Create New Tax Assessment Dossier (Front Office Intake)</div>
+        <button class="btn" style="padding:2px 8px;" onclick="closeNewDossierModal()">&times;</button>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label class="form-label">Client Full Name / Corporate Entity</label>
+            <input type="text" id="newClientName" class="form-control" value="Soparfi Holdings S.A." />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Luxembourg Account Number</label>
+            <input type="text" id="newAccountNo" class="form-control" value="LU91-0019-8842-1190" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tax Identification Number (TIN)</label>
+            <input type="text" id="newTin" class="form-control" value="LU-19982401993" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tax Form Type</label>
+            <select id="newFormType" class="form-control">
+              <option value="Form 100F (Lux Corporate Tax Return)">Form 100F (Lux Corporate Tax Return)</option>
+              <option value="Form 901bis (Dividend Withholding Reclaim)">Form 901bis (Dividend Withholding Reclaim)</option>
+              <option value="W-8BEN-E / FATCA Self-Certification">W-8BEN-E / FATCA Self-Certification</option>
+              <option value="CRS Entity Tax Residency Declaration">CRS Entity Tax Residency Declaration</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tax Assessment Year</label>
+            <select id="newTaxYear" class="form-control">
+              <option value="2026">2026</option>
+              <option value="2025" selected>2025</option>
+              <option value="2024">2024</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Route Physical / Batch Digitization To Scan Team</label>
+            <select id="newScanHub" class="form-control">
+              <option value="LUX">Scan Team from Lux (group_scan_lux)</option>
+              <option value="POLAND">Scan Team from Poland (group_scan_poland)</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Front Office Intake Notes</label>
+            <input type="text" id="newNotes" class="form-control" value="Client delivered physical tax pack at Kirchberg branch; urgent Q4 dividend reclaim." />
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;">
+          <button class="btn" onclick="closeNewDossierModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="createNewDossier()">Start Flowable Process Instance</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toastBox"></div>
+
+  <script>
+    // =========================================================================
+    // 5 PERSONAS DEFINITION (Exact User/Groups from Prompt)
+    // =========================================================================
+    const PERSONAS = [
+      {
+        id: "FRONT_OFFICE",
+        groupKey: "group_front_office",
+        title: "1. Front Office",
+        user: "Marie Laurent (Lux RM)",
+        color: "#be185d",
+        stageMatch: ["STAGE_FRONT_OFFICE"],
+        description: "Initiates Tax Assessment requests, handles client follow-ups when Data Check or Tax Team flags missing pages, and views completed assessments."
+      },
+      {
+        id: "SCAN_LUX",
+        groupKey: "group_scan_lux",
+        title: "2. Scan Team (Lux)",
+        user: "Luc Meyers (Kirchberg Hub)",
+        color: "#0369a1",
+        stageMatch: ["STAGE_SCAN_LUX"],
+        description: "Digitizes physical tax packets assigned to the Luxembourg Scan queue (and re-scan requests returned from Poland QC or Lux Tax) and uploads binaries to Azure Blob Storage."
+      },
+      {
+        id: "SCAN_POLAND",
+        groupKey: "group_scan_poland",
+        title: "3. Scan Team (Poland)",
+        user: "Katarzyna Nowak (Warsaw Hub)",
+        color: "#b45309",
+        stageMatch: ["STAGE_SCAN_POLAND"],
+        description: "Digitizes high-volume tax batches assigned to the Poland Scan queue (and re-scan requests returned from QC/Tax) into Azure Blob Storage."
+      },
+      {
+        id: "DATA_CHECK_POLAND",
+        groupKey: "group_data_check_poland",
+        title: "4. Data Check (Poland)",
+        user: "Piotr Kowalski (Kraków QC)",
+        color: "#6d28d9",
+        stageMatch: ["STAGE_DATA_CHECK_POLAND"],
+        description: "Verifies OCR-extracted indexing metadata against the Azure Blob PDF preview. Uses the decision dropdown to approve to Tax Team Lux, return to the specific Scan Team for re-scanning, or return to Front Office for missing client pages."
+      },
+      {
+        id: "TAX_LUX",
+        groupKey: "group_tax_lux",
+        title: "5. Tax Team (Lux)",
+        user: "Jean-Paul Schmit (Lux Tax Officer)",
+        color: "#047857",
+        stageMatch: ["STAGE_TAX_LUX"],
+        description: "Performs final tax assessment in Luxembourg. Approves to commit the golden record to Apache Hive via Kafka Event Registry, or routes rework via dropdown to Data Check, Scan Team, or Front Office."
+      }
+    ];
+
+    // =========================================================================
+    // INITIAL DUMMY DATA (8 Realistic Banking Dossiers across all 5 Personas)
+    // =========================================================================
+    const INITIAL_CASES = [
+      {
+        id: "TAX-2026-801",
+        procInstId: "flw-pi-99201",
+        clientName: "Alzette Private Wealth S.à r.l.",
+        accountNo: "LU44-0019-2300-8812",
+        tin: "LU-20114892011",
+        formType: "Form 100F (Lux Corporate Tax Return)",
+        taxYear: "2025",
+        scanHub: "LUX",
+        stage: "STAGE_FRONT_OFFICE",
+        reworkFlag: true,
+        reworkReason: "Returned by Data Check Team (Poland): Page 4 (Schedule B - Foreign Dividend Breakdown & Client Wet Signature) is missing from the uploaded packet.",
+        reworkFrom: "Data Check Team (Poland)",
+        declaredIncome: "1,480,000 EUR",
+        withholdingRate: "15.0%",
+        assessedTax: "Pending",
+        dpi: "300 DPI",
+        pageCount: "3 of 4 pages (Incomplete)",
+        skewed: false,
+        blobUri: "abfss://tax-dms-lux@bankluxstorage.dfs.core.windows.net/2025/TAX-2026-801_v1.pdf",
+        hiveGoldenId: "HIVE-GLD-00801",
+        hiveStatus: "PENDING_CLIENT_PAGES",
+        audit: [
+          { time: "08:15", actor: "Front Office (Marie Laurent)", text: "Initiated dossier TAX-2026-801 and routed to Scan Team Lux.", type: "normal" },
+          { time: "08:42", actor: "Scan Team Lux (Luc Meyers)", text: "Uploaded 3-page PDF to Azure Blob Storage via AzureBlobStorageContentStorage.", type: "normal" },
+          { time: "09:10", actor: "Data Check Poland (Piotr Kowalski)", text: "Decision Dropdown -> RETURN_TO_FRONT_OFFICE: Missing Page 4 Schedule B signature page.", type: "rework" }
+        ]
+      },
+      {
+        id: "TAX-2026-802",
+        procInstId: "flw-pi-99202",
+        clientName: "Moselle Institutional Fund SICAV",
+        accountNo: "LU18-0019-7741-0092",
+        tin: "LU-19940021842",
+        formType: "Form 901bis (Dividend Withholding Reclaim)",
+        taxYear: "2025",
+        scanHub: "LUX",
+        stage: "STAGE_SCAN_LUX",
+        reworkFlag: true,
+        reworkReason: "Returned by Data Check Team (Poland): Page 2 barcode & TIN box are skewed and blurry at 150 DPI. Please re-scan at 300 DPI.",
+        reworkFrom: "Data Check Team (Poland)",
+        declaredIncome: "3,920,000 EUR",
+        withholdingRate: "15.0%",
+        assessedTax: "Pending",
+        dpi: "150 DPI (Low Quality)",
+        pageCount: "6 pages",
+        skewed: true,
+        blobUri: "abfss://tax-dms-lux@bankluxstorage.dfs.core.windows.net/2025/TAX-2026-802_v1_blurry.pdf",
+        hiveGoldenId: "HIVE-GLD-00802",
+        hiveStatus: "RESCAN_REQUESTED",
+        audit: [
+          { time: "07:50", actor: "Front Office (Marie Laurent)", text: "Created Dividend Reclaim case; assigned Scan Hub = LUX.", type: "normal" },
+          { time: "08:20", actor: "Scan Team Lux (Luc Meyers)", text: "Scanned batch at 150 DPI to Azure Blob.", type: "normal" },
+          { time: "09:05", actor: "Data Check Poland (Piotr Kowalski)", text: "Decision Dropdown -> RETURN_TO_SCAN (Lux): OCR confidence < 62% due to skew/blur.", type: "rework" }
+        ]
+      },
+      {
+        id: "TAX-2026-803",
+        procInstId: "flw-pi-99203",
+        clientName: "Ardennes Cross-Border Logistics S.A.",
+        accountNo: "LU77-0019-5510-3321",
+        tin: "LU-20089912300",
+        formType: "W-8BEN-E / FATCA Self-Certification",
+        taxYear: "2026",
+        scanHub: "LUX",
+        stage: "STAGE_SCAN_LUX",
+        reworkFlag: false,
+        reworkReason: "",
+        reworkFrom: "",
+        declaredIncome: "840,000 EUR",
+        withholdingRate: "0.0% (Treaty Exempt)",
+        assessedTax: "Pending",
+        dpi: "Awaiting Scan",
+        pageCount: "8 pages (Physical Tray)",
+        skewed: false,
+        blobUri: "Pending Azure Blob Upload...",
+        hiveGoldenId: "HIVE-GLD-00803",
+        hiveStatus: "AWAITING_DIGITIZATION",
+        audit: [
+          { time: "09:18", actor: "Front Office (Marie Laurent)", text: "Logged physical W-8BEN-E packet at Kirchberg desk; routed to Scan Team Lux.", type: "normal" }
+        ]
+      },
+      {
+        id: "TAX-2026-804",
+        procInstId: "flw-pi-99204",
+        clientName: "Vistula European Holdings Sp. z o.o. (Lux Branch)",
+        accountNo: "LU62-0019-4401-9981",
+        tin: "LU-20194401928",
+        formType: "CRS Entity Tax Residency Declaration",
+        taxYear: "2025",
+        scanHub: "POLAND",
+        stage: "STAGE_SCAN_POLAND",
+        reworkFlag: false,
+        reworkReason: "",
+        reworkFrom: "",
+        declaredIncome: "2,150,000 EUR",
+        withholdingRate: "15.0%",
+        assessedTax: "Pending",
+        dpi: "Awaiting Scan",
+        pageCount: "5 pages (Warsaw Mailroom Tray)",
+        skewed: false,
+        blobUri: "Pending Azure Blob Upload...",
+        hiveGoldenId: "HIVE-GLD-00804",
+        hiveStatus: "AWAITING_DIGITIZATION",
+        audit: [
+          { time: "09:22", actor: "Front Office (Marie Laurent)", text: "Initiated CRS Declaration dossier; assigned Scan Hub = POLAND.", type: "normal" }
+        ]
+      },
+      {
+        id: "TAX-2026-805",
+        procInstId: "flw-pi-99205",
+        clientName: "Krakow-Lux FinTech Ventures S.A.",
+        accountNo: "LU09-0019-6123-7740",
+        tin: "LU-20218839201",
+        formType: "Form 100F (Lux Corporate Tax Return)",
+        taxYear: "2025",
+        scanHub: "POLAND",
+        stage: "STAGE_DATA_CHECK_POLAND",
+        reworkFlag: false,
+        reworkReason: "",
+        reworkFrom: "",
+        declaredIncome: "4,610,000 EUR",
+        withholdingRate: "24.94%",
+        assessedTax: "1,149,734 EUR (Est.)",
+        dpi: "300 DPI (Verified)",
+        pageCount: "12 pages",
+        skewed: false,
+        blobUri: "abfss://tax-dms-lux@bankluxstorage.dfs.core.windows.net/2025/TAX-2026-805_v1.pdf",
+        hiveGoldenId: "HIVE-GLD-00805",
+        hiveStatus: "STAGE_RAW_INGESTED",
+        audit: [
+          { time: "08:05", actor: "Front Office (Marie Laurent)", text: "Created Corporate Tax Assessment case; routed to Scan Team Poland.", type: "normal" },
+          { time: "08:49", actor: "Scan Team Poland (Katarzyna Nowak)", text: "Uploaded 12-page PDF (300 DPI) to Azure Blob Storage; auto-extracted OCR fields.", type: "normal" },
+          { time: "08:49", actor: "Flowable Event Registry", text: "Published Kafka event RAW_DOCUMENT_UPLOADED to topic flw.tax.golden.sync.outbound.", type: "kafka" }
+        ]
+      },
+      {
+        id: "TAX-2026-806",
+        procInstId: "flw-pi-99206",
+        clientName: "Grand Duchy Infrastructure Partners SCSp",
+        accountNo: "LU51-0019-9002-4512",
+        tin: "LU-20167738190",
+        formType: "Form 901bis (Dividend Withholding Reclaim)",
+        taxYear: "2025",
+        scanHub: "LUX",
+        stage: "STAGE_DATA_CHECK_POLAND",
+        reworkFlag: true,
+        reworkReason: "Returned by Tax Team (Lux): Indexed Withholding Tax Rate was entered as 10%, but Bilateral Treaty Article 10 specifies 15% for non-qualifying holdings. Please re-verify Box 14.",
+        reworkFrom: "Tax Team (Lux)",
+        declaredIncome: "6,250,000 EUR",
+        withholdingRate: "10.0% (Flagged — Should be 15.0%)",
+        assessedTax: "937,500 EUR",
+        dpi: "300 DPI (Verified)",
+        pageCount: "7 pages",
+        skewed: false,
+        blobUri: "abfss://tax-dms-lux@bankluxstorage.dfs.core.windows.net/2025/TAX-2026-806_v2.pdf",
+        hiveGoldenId: "HIVE-GLD-00806",
+        hiveStatus: "INDEX_REWORK_PENDING",
+        audit: [
+          { time: "07:30", actor: "Scan Team Lux (Luc Meyers)", text: "Uploaded 7-page scan to Azure Blob Storage.", type: "normal" },
+          { time: "08:15", actor: "Data Check Poland (Piotr Kowalski)", text: "Approved initial OCR index and routed to Tax Team Lux.", type: "normal" },
+          { time: "09:28", actor: "Tax Team Lux (Jean-Paul Schmit)", text: "Decision Dropdown -> RETURN_TO_DATA_CHECK: Treaty rate mismatch on Box 14.", type: "rework" }
+        ]
+      },
+      {
+        id: "TAX-2026-807",
+        procInstId: "flw-pi-99207",
+        clientName: "Banque Privée de Clausen Custody Account",
+        accountNo: "LU88-0019-1120-6654",
+        tin: "LU-19893310492",
+        formType: "Form 100F (Lux Corporate Tax Return)",
+        taxYear: "2025",
+        scanHub: "LUX",
+        stage: "STAGE_TAX_LUX",
+        reworkFlag: false,
+        reworkReason: "",
+        reworkFrom: "",
+        declaredIncome: "9,800,000 EUR",
+        withholdingRate: "24.94%",
+        assessedTax: "2,444,120 EUR",
+        dpi: "300 DPI (Verified)",
+        pageCount: "14 pages",
+        skewed: false,
+        blobUri: "abfss://tax-dms-lux@bankluxstorage.dfs.core.windows.net/2025/TAX-2026-807_v1.pdf",
+        hiveGoldenId: "HIVE-GLD-00807",
+        hiveStatus: "INDEX_VERIFIED_SYNCED",
+        audit: [
+          { time: "07:12", actor: "Front Office (Marie Laurent)", text: "Initiated high-priority corporate tax assessment dossier.", type: "normal" },
+          { time: "07:45", actor: "Scan Team Lux (Luc Meyers)", text: "Digitized 14 pages to Azure Blob Storage.", type: "normal" },
+          { time: "08:30", actor: "Data Check Poland (Piotr Kowalski)", text: "Verified all 18 OCR index fields; routed to Tax Team Lux.", type: "normal" },
+          { time: "08:31", actor: "Flowable Event Registry", text: "Kafka event INDEX_VERIFIED synced to Apache Hive partition tax_year=2025/scan_hub=LUX.", type: "kafka" }
+        ]
+      },
+      {
+        id: "TAX-2026-808",
+        procInstId: "flw-pi-99208",
+        clientName: "Belval Industrial Renewables S.A.",
+        accountNo: "LU31-0019-3009-1182",
+        tin: "LU-20150098231",
+        formType: "W-8BEN-E / FATCA Self-Certification",
+        taxYear: "2025",
+        scanHub: "POLAND",
+        stage: "STAGE_COMPLETED",
+        reworkFlag: false,
+        reworkReason: "",
+        reworkFrom: "",
+        declaredIncome: "1,950,000 EUR",
+        withholdingRate: "0.0% (Exempt)",
+        assessedTax: "0 EUR (Approved Exempt)",
+        dpi: "300 DPI (Verified)",
+        pageCount: "6 pages",
+        skewed: false,
+        blobUri: "abfss://tax-dms-lux@bankluxstorage.dfs.core.windows.net/2025/TAX-2026-808_final.pdf",
+        hiveGoldenId: "HIVE-GLD-00808",
+        hiveStatus: "GOLDEN_FINAL_COMMITTED",
+        audit: [
+          { time: "Yesterday", actor: "Scan Team Poland (Katarzyna Nowak)", text: "Digitized 6 pages to Azure Blob Storage.", type: "normal" },
+          { time: "Yesterday", actor: "Data Check Poland (Piotr Kowalski)", text: "Verified W-8BEN-E GIIN and TIN metadata.", type: "normal" },
+          { time: "Yesterday", actor: "Tax Team Lux (Jean-Paul Schmit)", text: "Approved Final Tax Assessment; emitted Kafka GOLDEN_FINALIZED event to Apache Hive.", type: "kafka" }
+        ]
+      }
+    ];
+
+    let cases = JSON.parse(JSON.stringify(INITIAL_CASES));
+    let activePersonaId = "DATA_CHECK_POLAND"; // Start on Data Check Poland or Front Office
+    let queueFilter = "assigned";
+    let selectedCaseId = "TAX-2026-805";
+    let showOcrOverlay = true;
+    let kafkaEvents = [
+      { time: "09:28:14", topic: "flw.tax.golden.sync.outbound", key: "TAX-2026-806", type: "WORKFLOW_REWORK_FLAGGED", actor: "group_tax_lux", summary: "Tax Team returned TAX-2026-806 to Data Check Poland (Treaty rate check)" },
+      { time: "09:10:02", topic: "flw.tax.golden.sync.outbound", key: "TAX-2026-801", type: "MISSING_PAGES_ESCALATION", actor: "group_data_check_poland", summary: "Data Check flagged missing Page 4 -> Routed to Front Office" },
+      { time: "08:49:33", topic: "flw.tax.golden.sync.outbound", key: "TAX-2026-805", type: "BLOB_INGESTED_OCR_READY", actor: "group_scan_poland", summary: "AzureBlobStorageContentStorage stored TAX-2026-805_v1.pdf" },
+      { time: "08:31:05", topic: "flw.tax.golden.sync.ack", key: "TAX-2026-807", type: "HIVE_PARTITION_COMMITTED", actor: "hive-kafka-sink", summary: "Committed HIVE-GLD-00807 to bank_golden_dms.tax_documents (tax_year=2025)" }
+    ];
+
+    // =========================================================================
+    // CODE SNIPPETS FOR TAB 4 (Spring Boot 3.5 + Flowable 3.17 + Hive + Blob)
+    // =========================================================================
+    const CODE_SNIPPETS = {
+      bpmnXml: `<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:flowable="http://flowable.org/bpmn"
+             targetNamespace="http://luxbank.lu/dms/tax">
+
+  <process id="taxAssessmentProcess_v3_17" name="LuxBank Tax Assessment DMS Workflow" isExecutable="true">
+
+    <startEvent id="startEvent" name="Tax Dossier Created" flowable:initiator="initiator" />
+    <sequenceFlow id="flow1" sourceRef="startEvent" targetRef="frontOfficeIntakeTask" />
+
+    <!-- 1. FRONT OFFICE (LUX) -->
+    <userTask id="frontOfficeIntakeTask" name="Front Office Intake &amp; Client Document Follow-Up"
+              flowable:candidateGroups="group_front_office"
+              flowable:formKey="taxFrontOfficeForm" />
+    <sequenceFlow id="flow2" sourceRef="frontOfficeIntakeTask" targetRef="scanHubGateway" />
+
+    <!-- EXCLUSIVE GATEWAY: ROUTE TO LUX OR POLAND SCAN TEAM -->
+    <exclusiveGateway id="scanHubGateway" name="Route by Assigned Scan Hub" />
+    <sequenceFlow id="toScanLux" sourceRef="scanHubGateway" targetRef="scanLuxTask">
+      <conditionExpression>\${scanHub == 'LUX'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="toScanPoland" sourceRef="scanHubGateway" targetRef="scanPolandTask">
+      <conditionExpression>\${scanHub == 'POLAND'}</conditionExpression>
+    </sequenceFlow>
+
+    <!-- 2. SCAN TEAM FROM LUX -->
+    <userTask id="scanLuxTask" name="Digitize &amp; Upload to Azure Blob (Lux Scan Team)"
+              flowable:candidateGroups="group_scan_lux"
+              flowable:formKey="taxScanUploadForm" />
+    <sequenceFlow id="fromScanLux" sourceRef="scanLuxTask" targetRef="dataCheckPolandTask" />
+
+    <!-- 3. SCAN TEAM FROM POLAND -->
+    <userTask id="scanPolandTask" name="Digitize &amp; Upload to Azure Blob (Poland Scan Team)"
+              flowable:candidateGroups="group_scan_poland"
+              flowable:formKey="taxScanUploadForm" />
+    <sequenceFlow id="fromScanPoland" sourceRef="scanPolandTask" targetRef="dataCheckPolandTask" />
+
+    <!-- 4. DATA CHECK TEAM FROM POLAND -->
+    <userTask id="dataCheckPolandTask" name="Verify OCR Indexing &amp; Document Quality (Poland)"
+              flowable:candidateGroups="group_data_check_poland"
+              flowable:formKey="taxDataCheckDecisionForm" />
+    <sequenceFlow id="toQcGateway" sourceRef="dataCheckPolandTask" targetRef="qcDecisionGateway" />
+
+    <!-- QC DECISION DROPDOWN GATEWAY -->
+    <exclusiveGateway id="qcDecisionGateway" name="Data Check Decision" />
+    <!-- Option A: Approve to Tax Team Lux -->
+    <sequenceFlow id="qcApprove" sourceRef="qcDecisionGateway" targetRef="taxAssessmentLuxTask">
+      <conditionExpression>\${qcDecision == 'APPROVE'}</conditionExpression>
+    </sequenceFlow>
+    <!-- Option B: Return to Specific Originating Scan Team for Re-Scanning -->
+    <sequenceFlow id="qcReturnToScan" sourceRef="qcDecisionGateway" targetRef="scanHubGateway">
+      <conditionExpression>\${qcDecision == 'RESCAN'}</conditionExpression>
+    </sequenceFlow>
+    <!-- Option C: Return to Front Office to Contact Client for Missing Pages -->
+    <sequenceFlow id="qcReturnToFrontOffice" sourceRef="qcDecisionGateway" targetRef="frontOfficeIntakeTask">
+      <conditionExpression>\${qcDecision == 'MISSING_PAGES'}</conditionExpression>
+    </sequenceFlow>
+
+    <!-- 5. TAX TEAM FROM LUX -->
+    <userTask id="taxAssessmentLuxTask" name="Tax Assessment Review &amp; Decision (Lux Tax Team)"
+              flowable:candidateGroups="group_tax_lux"
+              flowable:formKey="taxFinalAssessmentForm" />
+    <sequenceFlow id="toTaxGateway" sourceRef="taxAssessmentLuxTask" targetRef="taxDecisionGateway" />
+
+    <!-- TAX DECISION DROPDOWN GATEWAY -->
+    <exclusiveGateway id="taxDecisionGateway" name="Tax Assessment Decision" />
+    <sequenceFlow id="taxApprove" sourceRef="taxDecisionGateway" targetRef="publishGoldenRecordKafkaTask">
+      <conditionExpression>\${taxDecision == 'APPROVE'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="taxReturnToDataCheck" sourceRef="taxDecisionGateway" targetRef="dataCheckPolandTask">
+      <conditionExpression>\${taxDecision == 'REWORK_QC'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="taxReturnToScan" sourceRef="taxDecisionGateway" targetRef="scanHubGateway">
+      <conditionExpression>\${taxDecision == 'RESCAN'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="taxReturnToFrontOffice" sourceRef="taxDecisionGateway" targetRef="frontOfficeIntakeTask">
+      <conditionExpression>\${taxDecision == 'MISSING_PAGES'}</conditionExpression>
+    </sequenceFlow>
+
+    <!-- FLOWABLE EVENT REGISTRY: PUBLISH GOLDEN RECORD TO APACHE HIVE VIA KAFKA -->
+    <serviceTask id="publishGoldenRecordKafkaTask" name="Publish Golden Record Event to Apache Hive (Kafka)"
+                 flowable:type="send-event">
+      <extensionElements>
+        <flowable:eventType>taxGoldenSourceUpsertEvent</flowable:eventType>
+        <flowable:channelKey>kafkaTaxGoldenOutboundChannel</flowable:channelKey>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="toEnd" sourceRef="publishGoldenRecordKafkaTask" targetRef="endEvent" />
+    <endEvent id="endEvent" name="Archived in Golden Source (Hive)" />
+  </process>
+</definitions>`,
+
+      appYml: `# Spring Boot 3.5.x + Flowable Enterprise 3.17.* Configuration (Luxembourg Deployment)
+spring:
+  application:
+    name: luxbank-tax-dms
+  datasource:
+    url: jdbc:postgresql://pg-lux-prod.bank.internal:5432/flowable_dms
+    username: \${PG_USER}
+    password: \${PG_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  kafka:
+    bootstrap-servers: kafka-lux-01.bank.internal:9092,kafka-lux-02.bank.internal:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+# Flowable Enterprise 3.17 Native Azure Blob Storage Content Engine
+# Dependency: com.flowable.core:flowable-spring-boot-starter-azure-blob-storage
+flowable:
+  database-schema-update: true
+  async-executor-activate: true
+  content:
+    storage:
+      type: azure-blob
+  azure:
+    blob:
+      connection-string: \${AZURE_STORAGE_CONNECTION_STRING}
+      container-name: tax-dms-lux
+  eventregistry:
+    enabled: true
+
+# Apache Hive Golden Source Warehouse Connection (Used by Async Kafka Consumer / Batch Sync)
+luxbank:
+  hive:
+    jdbc-url: jdbc:hive2://hive-metastore-lux.bank.internal:10000/bank_golden_dms;transportMode=http
+    external-blob-root: abfss://tax-dms-lux@bankluxstorage.dfs.core.windows.net/`,
+
+      javaService: `package lu.luxbank.dms.tax.service;
+
+import org.flowable.content.api.ContentItem;
+import org.flowable.content.api.ContentService;
+import org.flowable.engine.RuntimeService;
+import org.flowable.engine.TaskService;
+import org.flowable.task.api.Task;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Map;
+
+@Service
+public class TaxWorkflowService {
+
+    private final RuntimeService runtimeService;
+    private final TaskService taskService;
+    private final ContentService contentService; // Backed by AzureBlobStorageContentStorage
+
+    public TaxWorkflowService(RuntimeService runtimeService,
+                              TaskService taskService,
+                              ContentService contentService) {
+        this.runtimeService = runtimeService;
+        this.taskService = taskService;
+        this.contentService = contentService;
+    }
+
+    /**
+     * Step 2/3: Scan Team (Lux or Poland) uploads binary scan directly to Azure Blob Storage
+     * via Flowable ContentService and routes task to Data Check Team (Poland).
+     */
+    @Transactional
+    public String uploadScanAndCompleteTask(String taskId, MultipartFile pdfFile, String scanDpi) throws IOException {
+        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+
+        ContentItem contentItem = contentService.newContentItem();
+        contentItem.setName(pdfFile.getOriginalFilename());
+        contentItem.setMimeType("application/pdf");
+        contentItem.setProcessInstanceId(task.getProcessInstanceId());
+        contentItem.setTaskId(taskId);
+
+        // Streams binary directly to Azure Blob Storage & persists pointer in PostgreSQL FLW_CO_CONTENT_OBJECT
+        contentService.saveContentItem(contentItem, pdfFile.getInputStream());
+
+        String azureBlobUri = "abfss://tax-dms-lux@bankluxstorage.dfs.core.windows.net/" + contentItem.getContentStoreId();
+        taskService.complete(taskId, Map.of(
+            "contentItemId", contentItem.getId(),
+            "azureBlobUri", azureBlobUri,
+            "scanDpi", scanDpi,
+            "reworkFlag", false
+        ));
+        return contentItem.getId();
+    }
+
+    /**
+     * Step 4: Data Check Team (Poland) Decision Dropdown
+     * Supports: APPROVE (to Tax Lux), RESCAN (to Originating Scan Team Lux/PL), MISSING_PAGES (to Front Office)
+     */
+    @Transactional
+    public void completeDataCheckDecision(String taskId, String qcDecision, String reworkReason, Map<String, Object> verifiedIndexData) {
+        verifiedIndexData.put("qcDecision", qcDecision);
+        verifiedIndexData.put("reworkFlag", !"APPROVE".equals(qcDecision));
+        verifiedIndexData.put("reworkReason", reworkReason);
+        taskService.complete(taskId, verifiedIndexData);
+    }
+}`,
+
+      sqlDdl: `-- ============================================================================
+-- 1. POSTGRESQL OPERATIONAL HOT STORE (Sub-20ms UI & Flowable Runtime Queries)
+-- ============================================================================
+CREATE TABLE flw_tax_dossier (
+    dossier_id          VARCHAR(32) PRIMARY KEY,
+    proc_inst_id        VARCHAR(64) NOT NULL,
+    client_name         VARCHAR(160) NOT NULL,
+    account_no          VARCHAR(34) NOT NULL,
+    tin                 VARCHAR(32) NOT NULL,
+    form_type           VARCHAR(80) NOT NULL,
+    tax_year            INT NOT NULL,
+    scan_hub            VARCHAR(16) NOT NULL CHECK (scan_hub IN ('LUX', 'POLAND')),
+    current_stage       VARCHAR(40) NOT NULL,
+    content_item_id     VARCHAR(64),
+    azure_blob_uri      VARCHAR(512),
+    declared_income_eur NUMERIC(18,2),
+    withholding_rate    NUMERIC(5,2),
+    assessed_tax_eur    NUMERIC(18,2),
+    rework_flag         BOOLEAN DEFAULT FALSE,
+    rework_reason       TEXT,
+    hive_golden_id      VARCHAR(64),
+    hive_sync_status    VARCHAR(32) DEFAULT 'PENDING_KAFKA_SYNC',
+    updated_at          TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_tax_dossier_stage ON flw_tax_dossier(current_stage, scan_hub);
+
+-- ============================================================================
+-- 2. APACHE HIVE GOLDEN SOURCE EXTERNAL TABLE (Backed by Azure Blob / ADLS Gen2)
+-- Updated asynchronously by Kafka Connect / Spark Streaming from Flowable Events
+-- ============================================================================
+CREATE EXTERNAL TABLE IF NOT EXISTS bank_golden_dms.tax_documents (
+    hive_golden_id      STRING,
+    dossier_id          STRING,
+    proc_inst_id        STRING,
+    client_name         STRING,
+    account_no          STRING,
+    tin                 STRING,
+    form_type           STRING,
+    declared_income_eur DECIMAL(18,2),
+    withholding_rate    DECIMAL(5,2),
+    assessed_tax_eur    DECIMAL(18,2),
+    azure_blob_uri      STRING,
+    sha256_checksum     STRING,
+    approved_by_user    STRING,
+    golden_status       STRING,
+    committed_at        TIMESTAMP
+)
+PARTITIONED BY (tax_year INT, scan_hub STRING)
+STORED AS PARQUET
+LOCATION 'abfss://tax-dms-lux@bankluxstorage.dfs.core.windows.net/golden_warehouse/tax_documents/';`
+    };
+
+    // =========================================================================
+    // RENDER & INTERACTION LOGIC
+    // =========================================================================
+    function initApp() {
+      renderPersonaTabs();
+      renderCaseQueue();
+      renderCenterWorkspace();
+      renderDocumentViewer();
+      renderBpmnHighlights();
+      renderHiveAndKafkaTables();
+      showCodeSnippet('bpmnXml', document.querySelector('#tab-code .code-tabs .btn'));
+    }
+
+    function getActivePersona() {
+      return PERSONAS.find(p => p.id === activePersonaId);
+    }
+
+    function getSelectedCase() {
+      return cases.find(c => c.id === selectedCaseId) || cases[0];
+    }
+
+    function renderPersonaTabs() {
+      const container = document.getElementById("personaTabs");
+      container.innerHTML = PERSONAS.map(p => {
+        const count = cases.filter(c => p.stageMatch.includes(c.stage)).length;
+        const isActive = p.id === activePersonaId ? "active" : "";
+        return `
+          <button class="persona-btn ${isActive}" onclick="selectPersona('${p.id}')">
+            <span class="persona-dot" style="background:${p.color}"></span>
+            <div class="persona-info">
+              <div class="persona-role">${p.title}</div>
+              <div class="persona-user">${p.user}</div>
+            </div>
+            <span class="persona-badge">${count}</span>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function selectPersona(personaId) {
+      activePersonaId = personaId;
+      const persona = getActivePersona();
+      const matchingCases = cases.filter(c => persona.stageMatch.includes(c.stage));
+      if (matchingCases.length > 0) {
+        selectedCaseId = matchingCases[0].id;
+        queueFilter = "assigned";
+      } else {
+        queueFilter = "all";
+      }
+      renderPersonaTabs();
+      renderCaseQueue();
+      renderCenterWorkspace();
+      renderDocumentViewer();
+      renderBpmnHighlights();
+    }
+
+    function setQueueFilter(mode) {
+      queueFilter = mode;
+      document.getElementById("filterAssigned").classList.toggle("active", mode === "assigned");
+      document.getElementById("filterAll").classList.toggle("active", mode === "all");
+      renderCaseQueue();
+    }
+
+    function renderCaseQueue() {
+      const persona = getActivePersona();
+      const filtered = queueFilter === "assigned"
+        ? cases.filter(c => persona.stageMatch.includes(c.stage))
+        : cases;
+
+      document.getElementById("queueTitle").textContent = queueFilter === "assigned"
+        ? `${persona.title} Queue`
+        : "All Bank Dossiers";
+      document.getElementById("queueCountBadge").textContent = `${filtered.length} Dossier${filtered.length === 1 ? "" : "s"}`;
+      document.getElementById("filterAll").textContent = `All Bank Dossiers (${cases.length})`;
+
+      const listEl = document.getElementById("caseList");
+      if (filtered.length === 0) {
+        listEl.innerHTML = `
+          <div style="padding:24px 12px;text-align:center;color:var(--text-light);">
+            No active tasks currently in <strong>${persona.title}</strong> queue.<br/><br/>
+            <button class="btn" onclick="setQueueFilter('all')">View All ${cases.length} Bank Dossiers</button>
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(c => {
+        const isSelected = c.id === selectedCaseId ? "selected" : "";
+        const reworkClass = c.reworkFlag ? "rework-flag" : "";
+        const stageBadge = c.stage === "STAGE_COMPLETED"
+          ? `<span class="badge badge-approved">Golden Archived</span>`
+          : c.reworkFlag
+            ? `<span class="badge badge-rework">Rework Flagged</span>`
+            : `<span class="badge badge-normal">${formatStageShort(c.stage)}</span>`;
+
+        return `
+          <div class="case-card ${isSelected} ${reworkClass}" onclick="selectCase('${c.id}')">
+            <div class="case-top">
+              <span class="case-id">${c.id}</span>
+              ${stageBadge}
+            </div>
+            <div class="case-client">${c.clientName}</div>
+            <div style="font-size:11.5px;color:var(--text-muted);">${c.formType}</div>
+            <div class="case-meta">
+              <span>Scan Hub: <strong>${c.scanHub}</strong></span>
+              <span>TY ${c.taxYear}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function selectCase(caseId) {
+      selectedCaseId = caseId;
+      renderCaseQueue();
+      renderCenterWorkspace();
+      renderDocumentViewer();
+      renderBpmnHighlights();
+    }
+
+    function formatStageShort(stage) {
+      const map = {
+        "STAGE_FRONT_OFFICE": "1. Front Office",
+        "STAGE_SCAN_LUX": "2. Scan (Lux)",
+        "STAGE_SCAN_POLAND": "3. Scan (Poland)",
+        "STAGE_DATA_CHECK_POLAND": "4. Data Check (PL)",
+        "STAGE_TAX_LUX": "5. Tax Team (Lux)",
+        "STAGE_COMPLETED": "Golden Source (Hive)"
+      };
+      return map[stage] || stage;
+    }
+
+    function renderCenterWorkspace() {
+      const persona = getActivePersona();
+      const c = getSelectedCase();
+      const isMyTask = persona.stageMatch.includes(c.stage);
+      const center = document.getElementById("centerColumn");
+
+      const reworkHtml = c.reworkFlag ? `
+        <div class="rework-alert">
+          <strong>Rework / Exception Flagged by ${c.reworkFrom}:</strong><br/>
+          ${c.reworkReason}
+        </div>
+      ` : "";
+
+      // Action Panel tailored to the active persona
+      let actionHtml = "";
+      if (!isMyTask) {
+        const ownerPersona = PERSONAS.find(p => p.stageMatch.includes(c.stage));
+        actionHtml = `
+          <div class="decision-box" style="border-color:#cbd5e1;background:#f8fafc;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+              <div>
+                <div style="font-weight:700;font-size:13px;color:var(--text-main);">
+                  Read-Only Mode for ${persona.title}
+                </div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
+                  This dossier is currently at <strong>${formatStageShort(c.stage)}</strong>.
+                  ${ownerPersona ? `Switch to <strong>${ownerPersona.title}</strong> to execute the next workflow decision.` : `This workflow instance is completed and archived in Apache Hive.`}
+                </div>
+              </div>
+              ${ownerPersona ? `<button class="btn btn-primary" onclick="selectPersona('${ownerPersona.id}')">Switch to ${ownerPersona.title}</button>` : ""}
+            </div>
+          </div>
+        `;
+      } else if (persona.id === "FRONT_OFFICE") {
+        actionHtml = `
+          <div class="decision-box">
+            <div style="font-weight:700;font-size:13px;margin-bottom:8px;color:var(--primary);">
+              Front Office Action (Candidate Group: <code>group_front_office</code>)
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Assign / Route Digitization To Scan Team</label>
+                <select id="foScanHubSelect" class="form-control">
+                  <option value="LUX" ${c.scanHub === "LUX" ? "selected" : ""}>2. Scan Team from Lux (group_scan_lux)</option>
+                  <option value="POLAND" ${c.scanHub === "POLAND" ? "selected" : ""}>3. Scan Team from Poland (group_scan_poland)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Client Supplemental Document Action</label>
+                <select id="foActionSelect" class="form-control">
+                  <option value="FORWARD_TO_SCAN">Client Provided Missing Page 4 &rarr; Send to Scan Team</option>
+                  <option value="DIRECT_TO_QC">Digital PDF Attached Directly by RM &rarr; Send to Data Check (Poland)</option>
+                </select>
+              </div>
+              <div class="form-group full">
+                <label class="form-label">Front Office Resolution Comment</label>
+                <input type="text" id="foComment" class="form-control" value="Received signed Schedule B (Page 4) from client; forwarding packet for digitization." />
+              </div>
+            </div>
+            <div style="margin-top:12px;display:flex;justify-content:flex-end;">
+              <button class="btn btn-primary" onclick="executeFrontOfficeAction()">Complete Front Office Task &amp; Route</button>
+            </div>
+          </div>
+        `;
+      } else if (persona.id === "SCAN_LUX" || persona.id === "SCAN_POLAND") {
+        const hubLabel = persona.id === "SCAN_LUX" ? "Luxembourg Mailroom (group_scan_lux)" : "Poland Scan Hub (group_scan_poland)";
+        actionHtml = `
+          <div class="decision-box">
+            <div style="font-weight:700;font-size:13px;margin-bottom:8px;color:var(--primary);">
+              Digitization &amp; Azure Blob Upload (${hubLabel})
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Scanner Resolution Profile</label>
+                <select id="scanDpiSelect" class="form-control">
+                  <option value="300 DPI (Optical OCR Certified)" selected>300 DPI (Optical OCR Certified)</option>
+                  <option value="400 DPI (High-Density Archival)">400 DPI (High-Density Archival)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Target Azure Blob Container</label>
+                <input type="text" class="form-control" value="tax-dms-lux (AzureBlobStorageContentStorage)" readonly />
+              </div>
+              <div class="form-group full">
+                <label class="form-label">Scan Operator Note</label>
+                <input type="text" id="scanComment" class="form-control" value="${c.reworkFlag ? 'Re-scanned all pages at 300 DPI with deskew filter enabled; verified barcode clarity.' : 'Scanned complete physical tax packet to Azure Blob Storage and triggered OCR indexing.'}" />
+              </div>
+            </div>
+            <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:11.5px;color:var(--text-muted);">Streams binary to Azure Blob &amp; routes to <strong>Data Check Team (Poland)</strong></span>
+              <button class="btn btn-primary" onclick="executeScanAction()">Upload to Azure Blob &amp; Route to Data Check (Poland)</button>
+            </div>
+          </div>
+        `;
+      } else if (persona.id === "DATA_CHECK_POLAND") {
+        actionHtml = `
+          <div class="decision-box">
+            <div style="font-weight:700;font-size:13px;margin-bottom:8px;color:var(--primary);">
+              Data Check &amp; Indexing Decision (Candidate Group: <code>group_data_check_poland</code>)
+            </div>
+            <div class="form-grid">
+              <div class="form-group full">
+                <label class="form-label">Decision Dropdown (Routes via BPMN Exclusive Gateway <code>qcDecisionGateway</code>)</label>
+                <select id="qcDecisionSelect" class="form-control" onchange="updateQcDecisionHint()">
+                  <option value="APPROVE">APPROVE &rarr; Verify Index Metadata &amp; Route to Tax Team (Lux)</option>
+                  <option value="RESCAN">RETURN TO SCAN TEAM (${c.scanHub}) &rarr; Illegible / Skewed Scan (Re-Scan Required)</option>
+                  <option value="MISSING_PAGES">RETURN TO FRONT OFFICE (Lux) &rarr; Missing Client Pages / Unsigned Form</option>
+                </select>
+              </div>
+              <div class="form-group full">
+                <label class="form-label">Quality Check / Rework Reason Note</label>
+                <input type="text" id="qcComment" class="form-control" value="Verified TIN, Tax Year, and Box 14 Withholding Rate (15.0%) against scanned PDF." />
+              </div>
+            </div>
+            <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
+              <span id="qcHintText" style="font-size:11.5px;color:var(--text-muted);">Emits <code>INDEX_VERIFIED</code> Kafka event to Apache Hive &amp; assigns <strong>Tax Team (Lux)</strong></span>
+              <button class="btn btn-primary" onclick="executeDataCheckAction()">Submit Data Check Decision</button>
+            </div>
+          </div>
+        `;
+      } else if (persona.id === "TAX_LUX") {
+        actionHtml = `
+          <div class="decision-box">
+            <div style="font-weight:700;font-size:13px;margin-bottom:8px;color:var(--primary);">
+              Tax Assessment Final Decision (Candidate Group: <code>group_tax_lux</code>)
+            </div>
+            <div class="form-grid">
+              <div class="form-group full">
+                <label class="form-label">Decision Dropdown (Routes via BPMN Exclusive Gateway <code>taxDecisionGateway</code>)</label>
+                <select id="taxDecisionSelect" class="form-control" onchange="updateTaxDecisionHint()">
+                  <option value="APPROVE">APPROVE FINAL ASSESSMENT &rarr; Commit Golden Record to Apache Hive via Kafka</option>
+                  <option value="REWORK_QC">RETURN TO DATA CHECK TEAM (Poland) &rarr; Re-Verify OCR Index / Treaty Rate</option>
+                  <option value="RESCAN">RETURN TO SCAN TEAM (${c.scanHub}) &rarr; Re-Scan Blurry / Corrupted Schedule</option>
+                  <option value="MISSING_PAGES">RETURN TO FRONT OFFICE (Lux) &rarr; Request Client Clarification / Missing Schedule</option>
+                </select>
+              </div>
+              <div class="form-group full">
+                <label class="form-label">Luxembourg Tax Officer Assessment Note</label>
+                <input type="text" id="taxComment" class="form-control" value="Tax liability verified under Luxembourg CIT &amp; withholding tax rules. Approved for Golden Source archival." />
+              </div>
+            </div>
+            <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
+              <span id="taxHintText" style="font-size:11.5px;color:var(--text-muted);">Triggers Flowable <code>send-event</code> task to Kafka &rarr; <strong>Apache Hive Golden Source</strong></span>
+              <button class="btn btn-success" onclick="executeTaxAction()">Execute Tax Assessment Decision</button>
+            </div>
+          </div>
+        `;
+      }
+
+      const canEditIndex = isMyTask && (persona.id === "DATA_CHECK_POLAND" || persona.id === "TAX_LUX" || persona.id === "FRONT_OFFICE");
+
+      center.innerHTML = `
+        <!-- Active Persona Context Banner -->
+        <div class="persona-banner">
+          <div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--primary);">
+              Active Persona: ${persona.title} &bull; ${persona.user}
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
+              ${persona.description}
+            </div>
+          </div>
+          <span class="badge badge-normal" style="white-space:nowrap;">Flowable Group: ${persona.groupKey}</span>
+        </div>
+
+        <!-- Dossier Header & Multi-Store Lineage Card -->
+        <div class="card">
+          <div class="panel-header">
+            <div class="panel-title">
+              Dossier ${c.id} &mdash; ${c.clientName}
+              <span style="font-weight:400;color:var(--text-light);">(${c.procInstId})</span>
+            </div>
+            <span class="badge ${c.stage === 'STAGE_COMPLETED' ? 'badge-approved' : c.reworkFlag ? 'badge-rework' : 'badge-normal'}">
+              Current Stage: ${formatStageShort(c.stage)}
+            </span>
+          </div>
+          <div class="card-body">
+            ${reworkHtml}
+            <div class="lineage-grid">
+              <div class="lineage-box">
+                <div class="lineage-label">
+                  <span>PostgreSQL (Operational)</span>
+                  <span style="color:var(--success);">● ONLINE</span>
+                </div>
+                <div class="lineage-val">Table: flw_tax_dossier (${c.id})</div>
+              </div>
+              <div class="lineage-box">
+                <div class="lineage-label">
+                  <span>Azure Blob Storage</span>
+                  <span style="color:var(--info);">● NATIVE</span>
+                </div>
+                <div class="lineage-val">${c.blobUri}</div>
+              </div>
+              <div class="lineage-box">
+                <div class="lineage-label">
+                  <span>Apache Hive (Golden Source)</span>
+                  <span style="color:#d97706;">● ${c.hiveStatus}</span>
+                </div>
+                <div class="lineage-val">${c.hiveGoldenId} (Partition: ${c.taxYear}/${c.scanHub})</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Intelligent Indexing & Tax Assessment Fields Card -->
+        <div class="card">
+          <div class="panel-header">
+            <div class="panel-title">
+              Intelligent Document Indexing &amp; Tax Assessment Metadata
+              ${canEditIndex ? '<span class="badge badge-normal">Editable in Current Stage</span>' : '<span class="badge" style="background:#f1f5f9;color:#64748b;">Read-Only</span>'}
+            </div>
+            <span style="font-size:11px;color:var(--text-light);">Synced to Apache Hive via Kafka Event Registry</span>
+          </div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Client / Legal Entity Name <span>[OCR Box 1]</span></label>
+                <input type="text" id="idxClientName" class="form-control ocr-highlight" value="${c.clientName}" ${canEditIndex ? "" : "readonly"} />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Luxembourg Account IBAN <span>[OCR Box 2]</span></label>
+                <input type="text" id="idxAccountNo" class="form-control ocr-highlight" value="${c.accountNo}" ${canEditIndex ? "" : "readonly"} />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tax Identification Number (TIN) <span>[OCR Box 3]</span></label>
+                <input type="text" id="idxTin" class="form-control ocr-highlight" value="${c.tin}" ${canEditIndex ? "" : "readonly"} />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tax Form Classification <span>[OCR Box 4]</span></label>
+                <input type="text" id="idxFormType" class="form-control ocr-highlight" value="${c.formType}" ${canEditIndex ? "" : "readonly"} />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Declared Taxable Income <span>[OCR Box 12]</span></label>
+                <input type="text" id="idxIncome" class="form-control ocr-highlight" value="${c.declaredIncome}" ${canEditIndex ? "" : "readonly"} />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Applicable Withholding / CIT Rate <span>[OCR Box 14]</span></label>
+                <input type="text" id="idxRate" class="form-control ocr-highlight" value="${c.withholdingRate}" ${canEditIndex ? "" : "readonly"} />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Calculated / Assessed Tax Liability</label>
+                <input type="text" id="idxAssessedTax" class="form-control" value="${c.assessedTax}" ${canEditIndex ? "" : "readonly"} />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Originating Scan Team &amp; Resolution</label>
+                <input type="text" class="form-control" value="Scan Team ${c.scanHub} &bull; ${c.dpi} (${c.pageCount})" readonly />
+              </div>
+            </div>
+
+            ${actionHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    function updateQcDecisionHint() {
+      const sel = document.getElementById("qcDecisionSelect").value;
+      const comment = document.getElementById("qcComment");
+      const hint = document.getElementById("qcHintText");
+      const c = getSelectedCase();
+      if (sel === "APPROVE") {
+        comment.value = "Verified TIN, Tax Year, and Box 14 Withholding Rate (15.0%) against scanned PDF.";
+        hint.innerHTML = "Emits <code>INDEX_VERIFIED</code> Kafka event to Apache Hive &amp; assigns <strong>Tax Team (Lux)</strong>";
+      } else if (sel === "RESCAN") {
+        comment.value = `Page 2 barcode and TIN box are blurry/skewed. Returning to Scan Team (${c.scanHub}) for 300 DPI re-scan.`;
+        hint.innerHTML = `Routes back to <strong>Scan Team (${c.scanHub})</strong> queue with rework flag`;
+      } else {
+        comment.value = "Schedule B (Foreign Dividend Breakdown) and client wet signature page are missing. Returning to Front Office.";
+        hint.innerHTML = "Routes back to <strong>Front Office (Lux)</strong> to request missing pages from client";
+      }
+    }
+
+    function updateTaxDecisionHint() {
+      const sel = document.getElementById("taxDecisionSelect").value;
+      const comment = document.getElementById("taxComment");
+      const hint = document.getElementById("taxHintText");
+      const c = getSelectedCase();
+      if (sel === "APPROVE") {
+        comment.value = "Tax liability verified under Luxembourg CIT & withholding tax rules. Approved for Golden Source archival.";
+        hint.innerHTML = "Triggers Flowable <code>send-event</code> task to Kafka &rarr; <strong>Apache Hive Golden Source</strong>";
+      } else if (sel === "REWORK_QC") {
+        comment.value = "Withholding rate in Box 14 does not match Double Tax Treaty rate (15%). Returning to Data Check Team (Poland).";
+        hint.innerHTML = "Routes back to <strong>Data Check Team (Poland)</strong> for index correction";
+      } else if (sel === "RESCAN") {
+        comment.value = `Attachment page 5 is illegible in PDF rendition. Returning to Scan Team (${c.scanHub}) for re-scanning.`;
+        hint.innerHTML = `Routes back to <strong>Scan Team (${c.scanHub})</strong> queue for re-scanning`;
+      } else {
+        comment.value = "Beneficial owner declaration requires updated client tax residency certificate. Returning to Front Office.";
+        hint.innerHTML = "Routes back to <strong>Front Office (Lux)</strong> for client outreach";
+      }
+    }
+
+    function syncEditedFieldsToCase(c) {
+      const clientEl = document.getElementById("idxClientName");
+      if (!clientEl) return;
+      c.clientName = clientEl.value;
+      c.accountNo = document.getElementById("idxAccountNo").value;
+      c.tin = document.getElementById("idxTin").value;
+      c.formType = document.getElementById("idxFormType").value;
+      c.declaredIncome = document.getElementById("idxIncome").value;
+      c.withholdingRate = document.getElementById("idxRate").value;
+      c.assessedTax = document.getElementById("idxAssessedTax").value;
+    }
+
+    // =========================================================================
+    // WORKFLOW TRANSITION ACTIONS FOR ALL 5 PERSONAS
+    // =========================================================================
+    function executeFrontOfficeAction() {
+      const c = getSelectedCase();
+      syncEditedFieldsToCase(c);
+      const scanHub = document.getElementById("foScanHubSelect").value;
+      const action = document.getElementById("foActionSelect").value;
+      const comment = document.getElementById("foComment").value;
+
+      c.scanHub = scanHub;
+      c.reworkFlag = false;
+      c.reworkReason = "";
+
+      if (action === "DIRECT_TO_QC") {
+        c.stage = "STAGE_DATA_CHECK_POLAND";
+        c.dpi = "300 DPI (Digital Native PDF)";
+        c.pageCount = "4 of 4 pages (Complete)";
+        c.blobUri = `abfss://tax-dms-lux@bankluxstorage.dfs.core.windows.net/${c.taxYear}/${c.id}_digital.pdf`;
+        c.hiveStatus = "STAGE_RAW_INGESTED";
+        addAuditAndKafka(c, "Front Office (Marie Laurent)", `Attached missing client pages & routed directly to Data Check (Poland). Note: ${comment}`, "FO_DIRECT_UPLOAD", "group_front_office");
+        showToast(`Dossier ${c.id} routed to Data Check Team (Poland).`);
+      } else {
+        c.stage = scanHub === "LUX" ? "STAGE_SCAN_LUX" : "STAGE_SCAN_POLAND";
+        c.pageCount = "4 of 4 pages (Physical Pack Ready)";
+        c.hiveStatus = "AWAITING_DIGITIZATION";
+        addAuditAndKafka(c, "Front Office (Marie Laurent)", `Routed physical dossier to Scan Team (${scanHub}). Note: ${comment}`, "FO_ROUTED_TO_SCAN", "group_front_office");
+        showToast(`Dossier ${c.id} routed to Scan Team (${scanHub}).`);
+      }
+      refreshAllViews();
+    }
+
+    function executeScanAction() {
+      const c = getSelectedCase();
+      const dpi = document.getElementById("scanDpiSelect").value;
+      const comment = document.getElementById("scanComment").value;
+      const persona = getActivePersona();
+
+      c.dpi = dpi;
+      c.skewed = false;
+      c.reworkFlag = false;
+      c.reworkReason = "";
+      c.blobUri = `abfss://tax-dms-lux@bankluxstorage.dfs.core.windows.net/${c.taxYear}/${c.id}_${c.scanHub.toLowerCase()}_300dpi.pdf`;
+      c.stage = "STAGE_DATA_CHECK_POLAND";
+      c.hiveStatus = "STAGE_RAW_INGESTED";
+
+      addAuditAndKafka(
+        c,
+        `${persona.title} (${persona.user})`,
+        `Uploaded binary PDF (${dpi}) to Azure Blob Storage via AzureBlobStorageContentStorage & routed to Data Check (Poland). Note: ${comment}`,
+        "BLOB_INGESTED_OCR_READY",
+        persona.groupKey
+      );
+      showToast(`Uploaded ${c.id} to Azure Blob Storage & routed to Data Check Team (Poland).`);
+      refreshAllViews();
+    }
+
+    function executeDataCheckAction() {
+      const c = getSelectedCase();
+      syncEditedFieldsToCase(c);
+      const decision = document.getElementById("qcDecisionSelect").value;
+      const comment = document.getElementById("qcComment").value;
+
+      if (decision === "APPROVE") {
+        c.stage = "STAGE_TAX_LUX";
+        c.reworkFlag = false;
+        c.reworkReason = "";
+        c.hiveStatus = "INDEX_VERIFIED_SYNCED";
+        addAuditAndKafka(
+          c,
+          "Data Check Poland (Piotr Kowalski)",
+          `Approved OCR Index Metadata & routed to Tax Team (Lux). Note: ${comment}`,
+          "INDEX_VERIFIED_HIVE_STAGED",
+          "group_data_check_poland"
+        );
+        showToast(`Index verified! ${c.id} routed to Tax Team (Lux) & staged in Apache Hive.`);
+      } else if (decision === "RESCAN") {
+        c.stage = c.scanHub === "LUX" ? "STAGE_SCAN_LUX" : "STAGE_SCAN_POLAND";
+        c.reworkFlag = true;
+        c.reworkFrom = "Data Check Team (Poland)";
+        c.reworkReason = comment;
+        c.skewed = true;
+        c.hiveStatus = "RESCAN_REQUESTED";
+        addAuditAndKafka(
+          c,
+          "Data Check Poland (Piotr Kowalski)",
+          `Decision Dropdown -> RETURN_TO_SCAN (${c.scanHub}): ${comment}`,
+          "QC_REJECT_RESCAN",
+          "group_data_check_poland",
+          true
+        );
+        showToast(`Returned ${c.id} to Scan Team (${c.scanHub}) for re-scanning.`);
+      } else if (decision === "MISSING_PAGES") {
+        c.stage = "STAGE_FRONT_OFFICE";
+        c.reworkFlag = true;
+        c.reworkFrom = "Data Check Team (Poland)";
+        c.reworkReason = comment;
+        c.hiveStatus = "PENDING_CLIENT_PAGES";
+        addAuditAndKafka(
+          c,
+          "Data Check Poland (Piotr Kowalski)",
+          `Decision Dropdown -> RETURN_TO_FRONT_OFFICE: ${comment}`,
+          "QC_REJECT_MISSING_PAGES",
+          "group_data_check_poland",
+          true
+        );
+        showToast(`Returned ${c.id} to Front Office to contact client for missing pages.`);
+      }
+      refreshAllViews();
+    }
+
+    function executeTaxAction() {
+      const c = getSelectedCase();
+      syncEditedFieldsToCase(c);
+      const decision = document.getElementById("taxDecisionSelect").value;
+      const comment = document.getElementById("taxComment").value;
+
+      if (decision === "APPROVE") {
+        c.stage = "STAGE_COMPLETED";
+        c.reworkFlag = false;
+        c.reworkReason = "";
+        c.hiveStatus = "GOLDEN_FINAL_COMMITTED";
+        if (c.assessedTax === "Pending") {
+          c.assessedTax = "222,000 EUR (Approved)";
+        }
+        addAuditAndKafka(
+          c,
+          "Tax Team Lux (Jean-Paul Schmit)",
+          `Approved Final Tax Assessment. Flowable Event Registry published GOLDEN_FINALIZED to Apache Hive. Note: ${comment}`,
+          "GOLDEN_FINALIZED_HIVE_COMMIT",
+          "group_tax_lux"
+        );
+        showToast(`Tax Assessment Approved! Golden record ${c.hiveGoldenId} committed to Apache Hive.`);
+      } else if (decision === "REWORK_QC") {
+        c.stage = "STAGE_DATA_CHECK_POLAND";
+        c.reworkFlag = true;
+        c.reworkFrom = "Tax Team (Lux)";
+        c.reworkReason = comment;
+        c.hiveStatus = "INDEX_REWORK_PENDING";
+        addAuditAndKafka(
+          c,
+          "Tax Team Lux (Jean-Paul Schmit)",
+          `Decision Dropdown -> RETURN_TO_DATA_CHECK (Poland): ${comment}`,
+          "TAX_RETURN_TO_QC",
+          "group_tax_lux",
+          true
+        );
+        showToast(`Returned ${c.id} to Data Check Team (Poland) for re-verification.`);
+      } else if (decision === "RESCAN") {
+        c.stage = c.scanHub === "LUX" ? "STAGE_SCAN_LUX" : "STAGE_SCAN_POLAND";
+        c.reworkFlag = true;
+        c.reworkFrom = "Tax Team (Lux)";
+        c.reworkReason = comment;
+        c.skewed = true;
+        c.hiveStatus = "RESCAN_REQUESTED";
+        addAuditAndKafka(
+          c,
+          "Tax Team Lux (Jean-Paul Schmit)",
+          `Decision Dropdown -> RETURN_TO_SCAN (${c.scanHub}): ${comment}`,
+          "TAX_RETURN_TO_SCAN",
+          "group_tax_lux",
+          true
+        );
+        showToast(`Returned ${c.id} to Scan Team (${c.scanHub}) for re-scanning.`);
+      } else if (decision === "MISSING_PAGES") {
+        c.stage = "STAGE_FRONT_OFFICE";
+        c.reworkFlag = true;
+        c.reworkFrom = "Tax Team (Lux)";
+        c.reworkReason = comment;
+        c.hiveStatus = "PENDING_CLIENT_PAGES";
+        addAuditAndKafka(
+          c,
+          "Tax Team Lux (Jean-Paul Schmit)",
+          `Decision Dropdown -> RETURN_TO_FRONT_OFFICE: ${comment}`,
+          "TAX_RETURN_TO_FO",
+          "group_tax_lux",
+          true
+        );
+        showToast(`Returned ${c.id} to Front Office for client tax clarification.`);
+      }
+      refreshAllViews();
+    }
+
+    function addAuditAndKafka(c, actor, text, eventType, groupKey, isRework = false) {
+      const now = new Date();
+      const timeStr = now.toTimeString().slice(0, 5);
+      const fullTime = now.toTimeString().slice(0, 8);
+      c.audit.unshift({
+        time: timeStr,
+        actor: actor,
+        text: text,
+        type: isRework ? "rework" : "normal"
+      });
+      kafkaEvents.unshift({
+        time: fullTime,
+        topic: "flw.tax.golden.sync.outbound",
+        key: c.id,
+        type: eventType,
+        actor: groupKey,
+        summary: text
+      });
+    }
+
+    // =========================================================================
+    // SIMULATED DOCUMENT VIEWER & AUDIT LOG
+    // =========================================================================
+    function renderDocumentViewer() {
+      const c = getSelectedCase();
+      const wrap = document.getElementById("docCanvasWrap");
+      const ocrClass = showOcrOverlay ? "show-ocr" : "";
+      const skewClass = c.skewed ? "skewed" : "";
+
+      let stampClass = "";
+      let stampText = `SCANNED HUB: ${c.scanHub}`;
+      if (c.stage === "STAGE_COMPLETED") {
+        stampClass = "approved";
+        stampText = "TAX APPROVED LUX • HIVE GOLDEN";
+      } else if (c.reworkFlag) {
+        stampClass = "rejected";
+        stampText = "REWORK FLAGGED";
+      }
+
+      wrap.innerHTML = `
+        <div class="doc-sheet ${ocrClass} ${skewClass}">
+          <div class="doc-stamp ${stampClass}">${stampText}</div>
+          <div style="border-bottom:2px solid #0f172a;padding-bottom:10px;margin-bottom:14px;">
+            <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#475569;">
+              Grand Duchy of Luxembourg &bull; Administration des Contributions Directes
+            </div>
+            <div style="font-size:15px;font-weight:700;margin-top:3px;" class="ocr-box">
+              ${c.formType}
+            </div>
+            <div style="font-size:11px;color:#475569;margin-top:2px;">
+              Dossier Reference: <strong>${c.id}</strong> &bull; Tax Year: <strong>${c.taxYear}</strong>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-family:sans-serif;font-size:11.5px;margin-bottom:14px;">
+            <div>
+              <div style="color:#64748b;font-size:10px;text-transform:uppercase;">Box 1: Taxpayer / Entity Name</div>
+              <div class="ocr-box" style="font-weight:700;">${c.clientName}</div>
+            </div>
+            <div>
+              <div style="color:#64748b;font-size:10px;text-transform:uppercase;">Box 2: Custody Account IBAN</div>
+              <div class="ocr-box" style="font-family:monospace;font-weight:700;">${c.accountNo}</div>
+            </div>
+            <div>
+              <div style="color:#64748b;font-size:10px;text-transform:uppercase;">Box 3: Luxembourg TIN / Matricule</div>
+              <div class="ocr-box" style="font-family:monospace;font-weight:700;">${c.tin}</div>
+            </div>
+            <div>
+              <div style="color:#64748b;font-size:10px;text-transform:uppercase;">Box 4: Scan Resolution &amp; Pages</div>
+              <div>${c.dpi} (${c.pageCount})</div>
+            </div>
+          </div>
+
+          <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:10px;border-radius:4px;font-family:sans-serif;font-size:11.5px;margin-bottom:14px;">
+            <div style="font-weight:700;margin-bottom:6px;color:#0f172a;">Schedule A — Taxable Base &amp; Withholding Calculation</div>
+            <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #cbd5e1;">
+              <span>Box 12: Gross Declared Taxable Income / Dividend</span>
+              <strong class="ocr-box">${c.declaredIncome}</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #cbd5e1;">
+              <span>Box 14: Applicable Tax / Treaty Rate</span>
+              <strong class="ocr-box">${c.withholdingRate}</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:4px 0;">
+              <span>Box 18: Net Assessed Tax Liability</span>
+              <strong class="ocr-box" style="color:#047857;">${c.assessedTax}</strong>
+            </div>
+          </div>
+
+          <div style="font-family:sans-serif;font-size:10.5px;color:#475569;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #cbd5e1;padding-top:10px;">
+            <div>
+              <strong>Azure Blob Object:</strong><br/>
+              <span style="font-family:monospace;font-size:9.5px;">${c.blobUri}</span>
+            </div>
+            <div style="text-align:right;">
+              <strong>Hive Golden ID:</strong><br/>
+              <span style="font-family:monospace;">${c.hiveGoldenId}</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const auditEl = document.getElementById("auditList");
+      auditEl.innerHTML = c.audit.map(a => `
+        <div class="audit-item ${a.type}">
+          <div style="display:flex;justify-content:space-between;color:var(--text-light);font-size:10.5px;">
+            <strong>${a.actor}</strong>
+            <span>${a.time} CET</span>
+          </div>
+          <div style="color:var(--text-main);margin-top:2px;">${a.text}</div>
+        </div>
+      `).join("");
+    }
+
+    function toggleOcrBoxes() {
+      showOcrOverlay = !showOcrOverlay;
+      renderDocumentViewer();
+    }
+
+    function toggleSimulateSkew() {
+      const c = getSelectedCase();
+      c.skewed = !c.skewed;
+      renderDocumentViewer();
+    }
+
+    // =========================================================================
+    // TAB 2: BPMN 2.0 LIVE HIGHLIGHTING
+    // =========================================================================
+    function renderBpmnHighlights() {
+      const c = getSelectedCase();
+      document.getElementById("bpmnSelectedCaseLabel").textContent = `${c.id} (${c.clientName})`;
+      document.getElementById("bpmnActiveGroupLabel").textContent = formatStageShort(c.stage);
+
+      document.querySelectorAll("#bpmnSvg .bpmn-node").forEach(el => {
+        el.classList.remove("active-step", "completed-step");
+      });
+
+      const activeNode = document.getElementById(`bpmn-${c.stage}`);
+      if (activeNode) {
+        activeNode.classList.add("active-step");
+      }
+    }
+
+    // =========================================================================
+    // TAB 3: HIVE GOLDEN SOURCE & KAFKA STREAM
+    // =========================================================================
+    function renderHiveAndKafkaTables() {
+      const hiveBody = document.getElementById("hiveTableBody");
+      hiveBody.innerHTML = cases.map(c => `
+        <tr onclick="selectCase('${c.id}')" style="cursor:pointer;">
+          <td style="font-family:monospace;font-weight:700;color:#92400e;">${c.hiveGoldenId}</td>
+          <td><strong>${c.clientName}</strong><br/><span style="font-size:11px;color:var(--text-light);font-family:monospace;">${c.accountNo}</span></td>
+          <td><span style="font-family:monospace;">${c.tin}</span><br/><span style="font-size:11px;color:var(--text-muted);">${c.formType}</span></td>
+          <td><strong>${c.taxYear}</strong></td>
+          <td><span class="badge badge-normal">${c.scanHub}</span></td>
+          <td style="font-family:monospace;font-size:11px;max-width:250px;overflow:hidden;text-overflow:ellipsis;">${c.blobUri}</td>
+          <td><span class="badge ${c.hiveStatus.includes('COMMITTED') || c.hiveStatus.includes('SYNCED') ? 'badge-approved' : 'badge-hive'}">${c.hiveStatus}</span></td>
+          <td><strong>${formatStageShort(c.stage)}</strong></td>
+        </tr>
+      `).join("");
+
+      const syncedCount = cases.filter(c => c.hiveStatus.includes("COMMITTED") || c.hiveStatus.includes("SYNCED")).length;
+      document.getElementById("hiveSyncCounterBadge").textContent = `${syncedCount} / ${cases.length} Synced to Hive Parquet`;
+
+      const kafkaBody = document.getElementById("kafkaTableBody");
+      kafkaBody.innerHTML = kafkaEvents.slice(0, 10).map(ev => `
+        <tr>
+          <td style="font-family:monospace;">${ev.time}</td>
+          <td style="font-family:monospace;color:var(--primary);">${ev.topic}</td>
+          <td style="font-family:monospace;font-weight:700;">${ev.key}</td>
+          <td><span class="badge badge-hive">${ev.type}</span></td>
+          <td style="font-family:monospace;">${ev.actor}</td>
+          <td>${ev.summary}</td>
+        </tr>
+      `).join("");
+    }
+
+    function flushKafkaToHive() {
+      cases.forEach(c => {
+        if (c.hiveStatus === "STAGE_RAW_INGESTED") {
+          c.hiveStatus = "HIVE_RAW_SYNCED";
+        }
+      });
+      kafkaEvents.unshift({
+        time: new Date().toTimeString().slice(0, 8),
+        topic: "flw.tax.golden.sync.ack",
+        key: "BATCH-COMMIT",
+        type: "HIVE_METASTORE_SYNC_ACK",
+        actor: "spark-hive-streaming-sink",
+        summary: "Flushed pending Kafka offsets into Apache Hive table bank_golden_dms.tax_documents."
+      });
+      renderHiveAndKafkaTables();
+      renderCenterWorkspace();
+      showToast("Kafka Consumer committed all pending offsets to Apache Hive Golden Source!");
+    }
+
+    // =========================================================================
+    // TAB 4 & MODAL UTILITIES
+    // =========================================================================
+    function showCodeSnippet(key, btnEl) {
+      document.getElementById("codePreDisplay").textContent = CODE_SNIPPETS[key];
+      if (btnEl) {
+        btnEl.parentElement.querySelectorAll(".btn").forEach(b => b.classList.remove("active", "btn-primary"));
+        btnEl.classList.add("btn-primary");
+      }
+    }
+
+    function switchMainTab(tabId, btnEl) {
+      document.querySelectorAll(".workspace").forEach(w => w.classList.remove("active"));
+      document.getElementById(`tab-${tabId}`).classList.add("active");
+      document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
+      btnEl.classList.add("active");
+      if (tabId === "bpmn") renderBpmnHighlights();
+      if (tabId === "hive") renderHiveAndKafkaTables();
+    }
+
+    function openNewDossierModal() {
+      document.getElementById("newDossierModal").style.display = "flex";
+    }
+
+    function closeNewDossierModal() {
+      document.getElementById("newDossierModal").style.display = "none";
+    }
+
+    function createNewDossier() {
+      const nextNum = 800 + cases.length + 1;
+      const newId = `TAX-2026-${nextNum}`;
+      const scanHub = document.getElementById("newScanHub").value;
+      const taxYear = document.getElementById("newTaxYear").value;
+      const clientName = document.getElementById("newClientName").value || "New Luxembourg Client S.A.";
+      const accountNo = document.getElementById("newAccountNo").value || "LU11-0019-0000-1111";
+      const tin = document.getElementById("newTin").value || "LU-20260001";
+      const formType = document.getElementById("newFormType").value;
+      const notes = document.getElementById("newNotes").value;
+
+      const targetStage = scanHub === "LUX" ? "STAGE_SCAN_LUX" : "STAGE_SCAN_POLAND";
+      const newCase = {
+        id: newId,
+        procInstId: `flw-pi-99${nextNum}`,
+        clientName,
+        accountNo,
+        tin,
+        formType,
+        taxYear,
+        scanHub,
+        stage: targetStage,
+        reworkFlag: false,
+        reworkReason: "",
+        reworkFrom: "",
+        declaredIncome: "1,250,000 EUR",
+        withholdingRate: "15.0%",
+        assessedTax: "Pending",
+        dpi: "Awaiting Scan",
+        pageCount: "5 pages (Physical Intake)",
+        skewed: false,
+        blobUri: "Pending Azure Blob Upload...",
+        hiveGoldenId: `HIVE-GLD-00${nextNum}`,
+        hiveStatus: "AWAITING_DIGITIZATION",
+        audit: [
+          {
+            time: new Date().toTimeString().slice(0, 5),
+            actor: "Front Office (Marie Laurent)",
+            text: `Created new Tax Assessment Dossier & routed to Scan Team (${scanHub}). Notes: ${notes}`,
+            type: "normal"
+          }
+        ]
+      };
+
+      cases.unshift(newCase);
+      selectedCaseId = newId;
+      activePersonaId = scanHub === "LUX" ? "SCAN_LUX" : "SCAN_POLAND";
+      closeNewDossierModal();
+      refreshAllViews();
+      showToast(`Created ${newId} and routed to Scan Team (${scanHub})!`);
+    }
+
+    function resetDemoData() {
+      cases = JSON.parse(JSON.stringify(INITIAL_CASES));
+      selectedCaseId = "TAX-2026-805";
+      activePersonaId = "DATA_CHECK_POLAND";
+      refreshAllViews();
+      showToast("Demo data reset to initial 8 banking dossiers.");
+    }
+
+    function refreshAllViews() {
+      renderPersonaTabs();
+      renderCaseQueue();
+      renderCenterWorkspace();
+      renderDocumentViewer();
+      renderBpmnHighlights();
+      renderHiveAndKafkaTables();
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const box = document.getElementById("toastBox");
+      box.textContent = msg;
+      box.style.display = "flex";
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        box.style.display = "none";
+      }, 4200);
+    }
+
+    window.addEventListener("DOMContentLoaded", initApp);
+  </script>
+</body>
+</html>
